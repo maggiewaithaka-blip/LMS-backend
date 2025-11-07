@@ -4,10 +4,13 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-SECRET_KEY = 'replace-me-with-secure-secret-for-prod'
-DEBUG = True
-ALLOWED_HOSTS = []
+# Quick-start development settings - can be overridden by environment for production
+# Keep safe defaults for local development but allow Render/production to set secure values.
+SECRET_KEY = os.getenv('SECRET_KEY', 'replace-me-with-secure-secret-for-prod')
+# Default DEBUG to True for local development; set DJANGO_DEBUG=False in production env
+DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
+# Provide a comma-separated list in DJANGO_ALLOWED_HOSTS (e.g. 'example.com,localhost')
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -64,12 +67,21 @@ TEMPLATES = [
 WSGI_APPLICATION = 'eccgd_backend.wsgi.application'
 
 # Database - using SQLite for development
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DATABASE_URL = os.getenv('DATABASE_URL')
+if DATABASE_URL:
+    # Use dj-database-url to parse DATABASE_URL if provided (Postgres on Render or local)
+    import dj_database_url
+
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -96,6 +108,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
