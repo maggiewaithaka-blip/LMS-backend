@@ -8,7 +8,6 @@ services:
       python manage.py collectstatic --noinput
       python manage.py migrate
     startCommand: gunicorn lms_backend.wsgi:application --bind 0.0.0.0:$PORT
-    releaseCommand: python manage.py migrate
     envVars:
       - key: DATABASE_URL
         value: "postgresql://eccgd_postgre_lms_backend_user:424IzpdWlLuRdVIa3LQgrxu5lp0ZMKow@dpg-d49g3v63jp1c73d2grug-a/eccgd_postgre_lms_backend"
