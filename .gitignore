@@ -12,3 +12,5 @@ staticfiles/
 env.bak/
 celerybeat-schedule
 instance/
+# dotenv
+.env
