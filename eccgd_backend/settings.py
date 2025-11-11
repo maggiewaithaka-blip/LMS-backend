@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'django_celery_beat',
+    'corsheaders',
     # Project apps
     'users',
     'courses',
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -165,3 +167,8 @@ CELERY_BEAT_SCHEDULE = {
         'args': (),
     },
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",  # your frontend dev server
+    # Add your deployed frontend URL if needed
+]

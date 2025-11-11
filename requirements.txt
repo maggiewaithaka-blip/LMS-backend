@@ -7,3 +7,4 @@ redis>=4.5
 django-celery-beat>=2.3
 dj-database-url>=1.0.0
 python-dotenv
+django-cors-headers
