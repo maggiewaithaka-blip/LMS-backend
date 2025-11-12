@@ -107,6 +107,11 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
+# CSRF trusted origins for admin and API forms
+CSRF_TRUSTED_ORIGINS = [
+    "https://lms-backend-ioll.onrender.com",
+]
+
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
