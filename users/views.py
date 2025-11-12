@@ -52,8 +52,16 @@ class RoleViewSet(viewsets.ModelViewSet):
 
 class RegisterView(generics.CreateAPIView):
     queryset = get_user_model().objects.all()
-    permission_classes = [AllowAny]
     serializer_class = UserCreateSerializer
+
+    def get_permissions(self):
+        role = self.request.data.get('role')
+        if role == 'admin':
+            from rest_framework.permissions import IsAdminUser
+            return [IsAdminUser()]
+        # Default: AllowAny for students and others
+        from rest_framework.permissions import AllowAny
+        return [AllowAny()]
 
 
 class ChangePasswordView(generics.UpdateAPIView):
