@@ -33,4 +33,12 @@ class UserRole(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField('users.User', on_delete=models.CASCADE, related_name='profile')
-    extra_data = models.JSONField(default=dict, blank=True)
+    passport_photo = models.ImageField(upload_to='profiles/passport_photos/', blank=True, null=True)
+    national_id = models.FileField(upload_to='profiles/national_ids/', blank=True, null=True)
+    passport = models.FileField(upload_to='profiles/passports/', blank=True, null=True)
+    academic_certificate = models.FileField(upload_to='profiles/certificates/', blank=True, null=True)
+    email = models.EmailField(max_length=255, blank=True, null=True)
+    phone = models.CharField(max_length=32, blank=True, null=True)
+    qualification_level = models.CharField(max_length=64, blank=True, null=True)
+    field_of_study = models.CharField(max_length=128, blank=True, null=True)
+    nationality = models.CharField(max_length=64, blank=True, null=True)
