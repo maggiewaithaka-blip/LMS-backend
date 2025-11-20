@@ -5,6 +5,8 @@ from django.contrib.auth import authenticate
 from rest_framework.permissions import AllowAny, IsAuthenticated # Moved AllowAny here
 from .serializers import RegistrationSerializer, LoginSerializer
 
+from .models import Role, UserRole
+
 # Registration API
 class RegistrationAPIView(APIView):
     permission_classes = [AllowAny]
@@ -13,6 +15,13 @@ class RegistrationAPIView(APIView):
         serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+            # Assign student role
+            try:
+                role, _ = Role.objects.get_or_create(name='student')
+                UserRole.objects.create(user=user, role=role)
+            except Exception:
+                # Log this in a real app
+                pass
             return Response({'id': user.id, 'username': user.username, 'first_name': user.first_name, 'last_name': user.last_name, 'phone': user.phone}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

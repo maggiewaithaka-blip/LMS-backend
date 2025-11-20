@@ -7,9 +7,17 @@ User = get_user_model()
 
 # Serializer for nested Profile data within User
 class ProfileSerializerForUser(serializers.ModelSerializer):
+    profile_picture = serializers.ImageField(required=False, allow_null=True)
+    passport_photo = serializers.ImageField(required=False, allow_null=True)
+    national_id = serializers.FileField(required=False, allow_null=True)
+    passport = serializers.FileField(required=False, allow_null=True)
+    academic_certificate = serializers.FileField(required=False, allow_null=True)
+    field_of_study = serializers.CharField(required=False, allow_blank=True)
+    nationality = serializers.CharField(required=False, allow_blank=True)
+
     class Meta:
         model = Profile
-        fields = ['date_of_birth', 'gender', 'address', 'qualification_level', 'profile_picture']
+        fields = ['date_of_birth', 'gender', 'address', 'qualification_level', 'profile_picture', 'passport_photo', 'national_id', 'passport', 'academic_certificate', 'field_of_study', 'nationality']
 
 
 # Registration serializer
@@ -69,6 +77,12 @@ class UserSerializer(serializers.ModelSerializer):
         profile.address = profile_data.get('address', profile.address)
         profile.qualification_level = profile_data.get('qualification_level', profile.qualification_level)
         profile.profile_picture = profile_data.get('profile_picture', profile.profile_picture)
+        profile.passport_photo = profile_data.get('passport_photo', profile.passport_photo)
+        profile.national_id = profile_data.get('national_id', profile.national_id)
+        profile.passport = profile_data.get('passport', profile.passport)
+        profile.academic_certificate = profile_data.get('academic_certificate', profile.academic_certificate)
+        profile.field_of_study = profile_data.get('field_of_study', profile.field_of_study)
+        profile.nationality = profile_data.get('nationality', profile.nationality)
         profile.save()
 
         return instance
