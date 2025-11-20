@@ -10,8 +10,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 RUN mkdir -p /app/logs
 
-COPY . /app/
+# Copy the rest of the application's code
+COPY . .
+
+# Make the run script executable
+RUN chmod +x /app/run.sh
 
 EXPOSE 8000
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# The main command to run when the container starts
+# This will run the migrations and then start the Gunicorn server
+CMD ["/app/run.sh"]

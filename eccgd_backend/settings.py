@@ -10,8 +10,64 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-later")
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "").split(",")
-ALLOWED_HOSTS = [host for host in ALLOWED_HOSTS if host] or ["*"]
+# Detect if running on Google Cloud
+USE_GCP = os.getenv("USE_GCP", "False").lower() == "true"
+
+if USE_GCP:
+    DEBUG = False
+    # This is safe because Cloud Run sets this header and it cannot be spoofed.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    
+    # ALLOWED_HOSTS for Google Cloud Run
+    ALLOWED_HOSTS = ["*"]
+    
+    # CSRF_TRUSTED_ORIGINS for security
+    CSRF_TRUSTED_ORIGINS = [
+        "https://*.run.app",
+        "https://eccgd-lms-backend-536444006215.africa-south1.run.app",
+    ]
+
+    # Database settings for GCP
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "HOST": f"/cloudsql/{os.getenv('DB_CONNECTION_NAME')}",
+            "USER": os.getenv("DB_USER"),
+            "PASSWORD": os.getenv("DB_PASSWORD"),
+            "NAME": os.getenv("DB_NAME"),
+        }
+    }
+elif os.getenv("RENDER"):
+    # Production on Render: use PostgreSQL
+    ALLOWED_HOSTS = []
+    if RENDER_EXTERNAL_HOSTNAME := os.getenv("RENDER_EXTERNAL_HOSTNAME"):
+        ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+        
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=os.getenv("DATABASE_URL"),
+            conn_max_age=600,
+            ssl_require=True
+        )
+    }
+elif os.getenv('DB_HOST'):
+    # Local development with Cloud SQL Proxy
+    ALLOWED_HOSTS = ["*"]
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=f"postgres://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}",
+            conn_max_age=600
+        )
+    }
+else:
+    # local: fallback to SQLite
+    ALLOWED_HOSTS = ["*"]
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # ---------------------------------------
 # INSTALLED APPS
@@ -30,6 +86,7 @@ INSTALLED_APPS = [
     "django_celery_beat",
     "drf_yasg",
     "rest_framework_simplejwt",
+    "storages", # For Google Cloud Storage
 
     # Project apps
     'users',
@@ -87,34 +144,25 @@ WSGI_APPLICATION = "eccgd_backend.wsgi.application"
 # ---------------------------------------
 # DATABASES
 # ---------------------------------------
-IS_RENDER = os.getenv("RENDER")
-
-if IS_RENDER:
-    # production: use PostgreSQL
-    DATABASES = {
-        "default": dj_database_url.config(
-            default=os.getenv("DATABASE_URL"),
-            conn_max_age=600,
-            ssl_require=True
-        )
-    }
-else:
-    # local: fallback to SQLite
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+# This section is now handled above, so it is removed from here.
 
 # ---------------------------------------
 # PASSWORD VALIDATION
 # ---------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {"min_length": 8},
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
 ]
 
 # ---------------------------------------
@@ -123,51 +171,106 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
+USE_L10N = True
 USE_TZ = True
 
 # ---------------------------------------
-# STATIC & MEDIA FILES
+# STATIC FILES
 # ---------------------------------------
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+# ---------------------------------------
+# MEDIA FILES
+# ---------------------------------------
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = BASE_DIR / "mediafiles"
 
 # ---------------------------------------
-# HIGH-PERFORMANCE FILE UPLOAD SETTINGS
+# DEFAULT PRIMARY KEY FIELD TYPE
 # ---------------------------------------
-# Allow larger uploads without buffering entire file in memory
-DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100 MB
-FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100 MB
-
-# Optional: temporary directory for uploads
-FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, 'tmp_uploads')
-os.makedirs(FILE_UPLOAD_TEMP_DIR, exist_ok=True)
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # ---------------------------------------
-# CORS (Enable only if needed)
+# CORS
 # ---------------------------------------
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = [
+    "https://ecggd-front.vercel.app",
+]
+CORS_ALLOW_CREDENTIALS = True
 
 # ---------------------------------------
-# AUTHENTICATION
+# DRF
 # ---------------------------------------
-AUTH_USER_MODEL = "users.User"
-
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-    ]
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
 }
 
 # ---------------------------------------
-# DEFAULT AUTO FIELD
+# CELERY
 # ---------------------------------------
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379")
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379")
+CELERY_TIMEZONE = "UTC"
+
+# ---------------------------------------
+# LOGGING
+# ---------------------------------------
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+        },
+        "eccgd_backend": {
+            "handlers": ["console"],
+            "level": os.getenv("ECCGD_LOG_LEVEL", "DEBUG"),
+        },
+    },
+}
+
+# ---------------------------------------
+# SWAGGER & REDOC
+# ---------------------------------------
+SWAGGER_SETTINGS = {
+    "USE_SESSION_AUTH": False,
+    "JSON_EDITOR": True,
+}
+
+REDOC_SETTINGS = {
+    "LAZY_RENDERING": True,
+}
+
+# ---------------------------------------
+# GOOGLE CLOUD STORAGE
+# ---------------------------------------
+if USE_GCP:
+    DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+    GS_BUCKET_NAME = os.getenv("GS_BUCKET_NAME")
+    MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/"

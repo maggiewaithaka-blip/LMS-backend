@@ -12,3 +12,5 @@ Pillow
 drf-yasg
 drf-nested-routers
 whitenoise
+gunicorn
+django-storages[google]
