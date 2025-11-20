@@ -8,7 +8,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECRET KEY & DEBUG
 # ---------------------------------------
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-later")
-
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "").split(",")
@@ -83,13 +82,11 @@ TEMPLATES = [
 # URLS & WSGI
 # ---------------------------------------
 ROOT_URLCONF = "eccgd_backend.urls"
-
 WSGI_APPLICATION = "eccgd_backend.wsgi.application"
 
 # ---------------------------------------
 # DATABASES
 # ---------------------------------------
-# Render sets an environment variable: RENDER = "true"
 IS_RENDER = os.getenv("RENDER")
 
 if IS_RENDER:
@@ -133,11 +130,21 @@ USE_TZ = True
 # ---------------------------------------
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+# ---------------------------------------
+# HIGH-PERFORMANCE FILE UPLOAD SETTINGS
+# ---------------------------------------
+# Allow larger uploads without buffering entire file in memory
+DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100 MB
+
+# Optional: temporary directory for uploads
+FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, 'tmp_uploads')
+os.makedirs(FILE_UPLOAD_TEMP_DIR, exist_ok=True)
 
 # ---------------------------------------
 # CORS (Enable only if needed)
