@@ -1,0 +1,14 @@
+Django>=4.2,<5.0
+djangorestframework>=3.14
+djangorestframework-simplejwt>=2.9
+psycopg2-binary>=2.9; python_version>"3.0"
+celery>=5.4
+redis>=4.5
+django-celery-beat>=2.3
+dj-database-url>=1.0.0
+python-dotenv
+django-cors-headers
+Pillow
+drf-yasg
+drf-nested-routers
+whitenoise

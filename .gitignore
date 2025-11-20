@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*.sqlite3
+env/
+.venv/
+venv/
+*.log
+media/
+staticfiles/
+.DS_Store
+*.pyc
+env.bak/
+celerybeat-schedule
+instance/
+# dotenv
+.env
