@@ -3,9 +3,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import authenticate
 from rest_framework.permissions import AllowAny, IsAuthenticated # Moved AllowAny here
-from .serializers import RegistrationSerializer, LoginSerializer
-
-from .models import Role, UserRole
+from .serializers import RegistrationSerializer, LoginSerializer, UserSerializer
+from .models import Role, UserRole, Profile
+from rest_framework.parsers import MultiPartParser, FormParser
 
 # Registration API
 class RegistrationAPIView(APIView):
@@ -140,5 +140,49 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='me', permission_classes=[IsAuthenticated])
     def me(self, request):
-        serializer = self.get_serializer(request.user)
+        serializer = self.get_serializer(request.user, context={'request': request})
         return Response(serializer.data)
+
+class ProfileFileUploadView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
+
+    def post(self, request, field_name):
+        print(">>> In ProfileFileUploadView")
+        user = request.user
+        try:
+            profile = user.profile
+        except Profile.DoesNotExist:
+            profile = Profile.objects.create(user=user)
+        
+        print(f">>> Uploading for user: {user.username}, field: {field_name}")
+        file_obj = request.data.get('file')
+
+        if not file_obj:
+            print(">>> File not found in request")
+            return Response({'detail': 'File not provided.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        print(f">>> File object: {file_obj}")
+        
+        field_mapping = {
+            'profile_picture': 'profile_picture',
+            'passport_photo': 'passport_photo',
+            'national_id': 'national_id',
+            'passport': 'passport',
+            'academic_certificate': 'academic_certificate',
+        }
+
+        model_field_name = field_mapping.get(field_name)
+        if not model_field_name:
+            print(f">>> Invalid field name: {field_name}")
+            return Response({'detail': 'Invalid field name.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        setattr(profile, model_field_name, file_obj)
+        print(">>> Saving profile...")
+        profile.save()
+        print(">>> Profile saved.")
+
+        file_url = request.build_absolute_uri(getattr(profile, model_field_name).url)
+        print(f">>> Returning URL: {file_url}")
+        
+        return Response({'file_url': file_url}, status=status.HTTP_200_OK)

@@ -7,17 +7,47 @@ User = get_user_model()
 
 # Serializer for nested Profile data within User
 class ProfileSerializerForUser(serializers.ModelSerializer):
-    profile_picture = serializers.ImageField(required=False, allow_null=True)
-    passport_photo = serializers.ImageField(required=False, allow_null=True)
-    national_id = serializers.FileField(required=False, allow_null=True)
-    passport = serializers.FileField(required=False, allow_null=True)
-    academic_certificate = serializers.FileField(required=False, allow_null=True)
+    profile_picture = serializers.SerializerMethodField()
+    passport_photo = serializers.SerializerMethodField()
+    national_id = serializers.SerializerMethodField()
+    passport = serializers.SerializerMethodField()
+    academic_certificate = serializers.SerializerMethodField()
     field_of_study = serializers.CharField(required=False, allow_blank=True)
     nationality = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = Profile
         fields = ['date_of_birth', 'gender', 'address', 'qualification_level', 'profile_picture', 'passport_photo', 'national_id', 'passport', 'academic_certificate', 'field_of_study', 'nationality']
+
+    def get_profile_picture(self, obj):
+        request = self.context.get('request')
+        if obj.profile_picture and hasattr(obj.profile_picture, 'url'):
+            return request.build_absolute_uri(obj.profile_picture.url)
+        return None
+
+    def get_passport_photo(self, obj):
+        request = self.context.get('request')
+        if obj.passport_photo and hasattr(obj.passport_photo, 'url'):
+            return request.build_absolute_uri(obj.passport_photo.url)
+        return None
+
+    def get_national_id(self, obj):
+        request = self.context.get('request')
+        if obj.national_id and hasattr(obj.national_id, 'url'):
+            return request.build_absolute_uri(obj.national_id.url)
+        return None
+
+    def get_passport(self, obj):
+        request = self.context.get('request')
+        if obj.passport and hasattr(obj.passport, 'url'):
+            return request.build_absolute_uri(obj.passport.url)
+        return None
+
+    def get_academic_certificate(self, obj):
+        request = self.context.get('request')
+        if obj.academic_certificate and hasattr(obj.academic_certificate, 'url'):
+            return request.build_absolute_uri(obj.academic_certificate.url)
+        return None
 
 
 # Registration serializer
@@ -56,6 +86,11 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'timezone', 'phone', 'institution', 'profile']
         read_only_fields = ['id', 'username']
 
+    def __init__(self, *args, **kwargs):
+        super(UserSerializer, self).__init__(*args, **kwargs)
+        # Pass context to nested serializer
+        self.fields['profile'] = ProfileSerializerForUser(context=self.context)
+
     def update(self, instance, validated_data):
         # Handle nested profile data
         profile_data = validated_data.pop('profile', {})
@@ -76,11 +111,6 @@ class UserSerializer(serializers.ModelSerializer):
         profile.gender = profile_data.get('gender', profile.gender)
         profile.address = profile_data.get('address', profile.address)
         profile.qualification_level = profile_data.get('qualification_level', profile.qualification_level)
-        profile.profile_picture = profile_data.get('profile_picture', profile.profile_picture)
-        profile.passport_photo = profile_data.get('passport_photo', profile.passport_photo)
-        profile.national_id = profile_data.get('national_id', profile.national_id)
-        profile.passport = profile_data.get('passport', profile.passport)
-        profile.academic_certificate = profile_data.get('academic_certificate', profile.academic_certificate)
         profile.field_of_study = profile_data.get('field_of_study', profile.field_of_study)
         profile.nationality = profile_data.get('nationality', profile.nationality)
         profile.save()

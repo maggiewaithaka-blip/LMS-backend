@@ -61,4 +61,4 @@ class Profile(models.Model):
     qualification_level = models.CharField(max_length=64, blank=True, null=True)
     field_of_study = models.CharField(max_length=128, blank=True, null=True)
     nationality = models.CharField(max_length=64, blank=True, null=True)
-    profile_picture = models.URLField(max_length=2000, blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='profiles/pictures/', blank=True, null=True)

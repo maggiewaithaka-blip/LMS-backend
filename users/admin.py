@@ -26,4 +26,14 @@ class UserRoleAdmin(admin.ModelAdmin):
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('user',)
+    list_display = (
+        'user', 'profile_picture', 'passport_photo', 'national_id', 'passport',
+        'academic_certificate', 'date_of_birth', 'gender', 'address',
+        'qualification_level', 'field_of_study', 'nationality',
+    )
+    fields = (
+        'user', 'profile_picture', 'passport_photo', 'national_id', 'passport',
+        'academic_certificate', 'date_of_birth', 'gender', 'address',
+        'qualification_level', 'field_of_study', 'nationality',
+    )
+    readonly_fields = ('user',)

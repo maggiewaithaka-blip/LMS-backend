@@ -72,3 +72,10 @@ class CourseResourceAdmin(admin.ModelAdmin):
     list_filter = ('resource_type', 'course')
     search_fields = ('title', 'course__shortname')
     actions = [export_as_csv_action(fields=['id', 'course_id', 'title', 'resource_type', 'file_id', 'url', 'created_at'])]
+
+
+@admin.register(Lesson)
+class LessonAdmin(admin.ModelAdmin):
+    list_display = ('id', 'course', 'title', 'position', 'visible')
+    list_filter = ('course',)
+    search_fields = ('title',)
