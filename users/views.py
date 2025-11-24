@@ -3,27 +3,28 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import authenticate
 from rest_framework.permissions import AllowAny, IsAuthenticated # Moved AllowAny here
-from .serializers import RegistrationSerializer, LoginSerializer, UserSerializer
+from .serializers import LoginSerializer, UserSerializer
 from .models import Role, UserRole, Profile
 from rest_framework.parsers import MultiPartParser, FormParser
 
 # Registration API
-class RegistrationAPIView(APIView):
-    permission_classes = [AllowAny]
-    
-    def post(self, request):
-        serializer = RegistrationSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            # Assign student role
-            try:
-                role, _ = Role.objects.get_or_create(name='student')
-                UserRole.objects.create(user=user, role=role)
-            except Exception:
-                # Log this in a real app
-                pass
-            return Response({'id': user.id, 'username': user.username, 'first_name': user.first_name, 'last_name': user.last_name, 'phone': user.phone}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# Registration disabled per client request: registration logic is hashed out.
+#class RegistrationAPIView(APIView):
+#    permission_classes = [AllowAny]
+#
+#    def post(self, request):
+#        serializer = RegistrationSerializer(data=request.data)
+#        if serializer.is_valid():
+#            user = serializer.save()
+#            # Assign student role
+#            try:
+#                role, _ = Role.objects.get_or_create(name='student')
+#                UserRole.objects.create(user=user, role=role)
+#            except Exception:
+#                # Log this in a real app
+#                pass
+#            return Response({'id': user.id, 'username': user.username, 'first_name': user.first_name, 'last_name': user.last_name, 'phone': user.phone}, status=status.HTTP_201_CREATED)
+#        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Login API
 class LoginAPIView(APIView):
@@ -60,10 +61,11 @@ from .models import Profile, Role, UserRole
 from rest_framework.decorators import action
 
 
-class ProfileViewSet(viewsets.ModelViewSet):
-    queryset = Profile.objects.select_related('user').all()
-    serializer_class = ProfileSerializer
-    permission_classes = [IsAuthenticated]
+# Profile endpoints are disabled per client request (profiles handled offline/back-end only)
+#class ProfileViewSet(viewsets.ModelViewSet):
+#    queryset = Profile.objects.select_related('user').all()
+#    serializer_class = ProfileSerializer
+#    permission_classes = [IsAuthenticated]
 
 
 class RoleViewSet(viewsets.ModelViewSet):
@@ -143,46 +145,47 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(request.user, context={'request': request})
         return Response(serializer.data)
 
-class ProfileFileUploadView(APIView):
-    permission_classes = [IsAuthenticated]
-    parser_classes = (MultiPartParser, FormParser)
-
-    def post(self, request, field_name):
-        print(">>> In ProfileFileUploadView")
-        user = request.user
-        try:
-            profile = user.profile
-        except Profile.DoesNotExist:
-            profile = Profile.objects.create(user=user)
-        
-        print(f">>> Uploading for user: {user.username}, field: {field_name}")
-        file_obj = request.data.get('file')
-
-        if not file_obj:
-            print(">>> File not found in request")
-            return Response({'detail': 'File not provided.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        print(f">>> File object: {file_obj}")
-        
-        field_mapping = {
-            'profile_picture': 'profile_picture',
-            'passport_photo': 'passport_photo',
-            'national_id': 'national_id',
-            'passport': 'passport',
-            'academic_certificate': 'academic_certificate',
-        }
-
-        model_field_name = field_mapping.get(field_name)
-        if not model_field_name:
-            print(f">>> Invalid field name: {field_name}")
-            return Response({'detail': 'Invalid field name.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        setattr(profile, model_field_name, file_obj)
-        print(">>> Saving profile...")
-        profile.save()
-        print(">>> Profile saved.")
-
-        file_url = request.build_absolute_uri(getattr(profile, model_field_name).url)
-        print(f">>> Returning URL: {file_url}")
-        
-        return Response({'file_url': file_url}, status=status.HTTP_200_OK)
+# Profile file upload API disabled per client request (profile management moved to backend)
+#class ProfileFileUploadView(APIView):
+#    permission_classes = [IsAuthenticated]
+#    parser_classes = (MultiPartParser, FormParser)
+#
+#    def post(self, request, field_name):
+#        print(">>> In ProfileFileUploadView")
+#        user = request.user
+#        try:
+#            profile = user.profile
+#        except Profile.DoesNotExist:
+#            profile = Profile.objects.create(user=user)
+#        
+#        print(f">>> Uploading for user: {user.username}, field: {field_name}")
+#        file_obj = request.data.get('file')
+#
+#        if not file_obj:
+#            print(">>> File not found in request")
+#            return Response({'detail': 'File not provided.'}, status=status.HTTP_400_BAD_REQUEST)
+#
+#        print(f">>> File object: {file_obj}")
+#        
+#        field_mapping = {
+#            'profile_picture': 'profile_picture',
+#            'passport_photo': 'passport_photo',
+#            'national_id': 'national_id',
+#            'passport': 'passport',
+#            'academic_certificate': 'academic_certificate',
+#        }
+#
+#        model_field_name = field_mapping.get(field_name)
+#        if not model_field_name:
+#            print(f">>> Invalid field name: {field_name}")
+#            return Response({'detail': 'Invalid field name.'}, status=status.HTTP_400_BAD_REQUEST)
+#
+#        setattr(profile, model_field_name, file_obj)
+#        print(">>> Saving profile...")
+#        profile.save()
+#        print(">>> Profile saved.")
+#
+#        file_url = request.build_absolute_uri(getattr(profile, model_field_name).url)
+#        print(f">>> Returning URL: {file_url}")
+#        
+#        return Response({'file_url': file_url}, status=status.HTTP_200_OK)

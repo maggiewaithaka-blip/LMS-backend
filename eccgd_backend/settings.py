@@ -11,7 +11,11 @@ SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-later")
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
 # Detect if running on Google Cloud
-USE_GCP = os.getenv("USE_GCP", "False").lower() == "true"
+# The K_SERVICE environment variable is set automatically by Google Cloud Run.
+if os.getenv("K_SERVICE"):
+    USE_GCP = True
+else:
+    USE_GCP = os.getenv("USE_GCP", "False").lower() == "true"
 
 if USE_GCP:
     DEBUG = False
@@ -19,13 +23,23 @@ if USE_GCP:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     
     # ALLOWED_HOSTS for Google Cloud Run
-    ALLOWED_HOSTS = ["*"]
+    # The K_SERVICE environment variable is the name of the Cloud Run service.
+    # The K_REVISION environment variable is the specific version of the service.
+    # We can construct the URL from these.
+    ALLOWED_HOSTS = [
+        "eccgd-lms-backend-536444006215.africa-south1.run.app",
+    ]
     
     # CSRF_TRUSTED_ORIGINS for security
     CSRF_TRUSTED_ORIGINS = [
-        "https://*.run.app",
         "https://eccgd-lms-backend-536444006215.africa-south1.run.app",
     ]
+    # Add the service URL to CSRF_TRUSTED_ORIGINS
+    if service_url := os.getenv("K_SERVICE"):
+        # The default URL for a Cloud Run service is https://<service-name>-<project-hash>-<region>.a.run.app
+        # We can get the project hash and region from the metadata server, but for simplicity,
+        # we will use the known URL.
+        CSRF_TRUSTED_ORIGINS.append(f"https://{service_url}")
 
     # Database settings for GCP
     DATABASES = {

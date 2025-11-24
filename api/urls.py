@@ -1,7 +1,7 @@
-from users.views import RegistrationAPIView, LoginAPIView
+from users.views import LoginAPIView
 from rest_framework import routers
 from django.urls import path, include
-from users.views import UserViewSet, ProfileFileUploadView
+from users.views import UserViewSet
 from courses.views import (
     CourseViewSet,
     CourseCategoryViewSet,
@@ -16,7 +16,7 @@ from grades.views import GradeItemViewSet, GradeViewSet
 from messaging.views import MessageViewSet, NotificationViewSet
 from storage.views import FileViewSet
 from courses.views_resource import CourseResourceViewSet
-from users.views_application import StudentApplicationView
+# StudentApplicationView removed from public API (student applications handled offline/back-end)
 
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
@@ -43,10 +43,10 @@ router.register(r'files', FileViewSet)
 from rest_framework_nested import routers as nested_routers
 course_router = nested_routers.NestedDefaultRouter(router, r'courses', lookup='course')
 course_router.register(r'lessons', LessonViewSet, basename='course-lessons')
-from users.views import ProfileViewSet, RoleViewSet
+from users.views import RoleViewSet
 from rest_framework import permissions
 
-router.register(r'profiles', ProfileViewSet)
+# Profile endpoints removed from public API
 router.register(r'roles', RoleViewSet)
 
 
@@ -56,14 +56,12 @@ from rest_framework_simplejwt.views import (
 )
 
 urlpatterns = [
-    path('auth/register/', RegistrationAPIView.as_view(), name='auth_register'),
     path('auth/login/', LoginAPIView.as_view(), name='auth_login'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', include(router.urls)),
-    path('student-applications/', StudentApplicationView.as_view(), name='student-application'),
     path('courses/<int:course_id>/quizzes/', QuizListView.as_view(), name='course-quizzes'),
     path('courses/<int:course_id>/assignments/', AssignmentListView.as_view(), name='course-assignments'),
-    path('users/me/upload/<str:field_name>/', ProfileFileUploadView.as_view(), name='profile-file-upload'),
+    # Profile upload endpoint disabled (profile management handled by backend)
     path('', include(course_router.urls)),
 ]
