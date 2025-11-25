@@ -50,7 +50,6 @@ from users.views import RoleViewSet
 from rest_framework import permissions
 
 # Profile endpoints removed from public API
-router.register(r'courses/enrolled', EnrolledCoursesViewSet, basename='enrolled-courses')
 router.register(r'roles', RoleViewSet)
 
 
@@ -64,6 +63,7 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('users/me/', UserViewSet.as_view({'get': 'me'}), name='user-me'),
+    path('courses/enrolled/', EnrolledCoursesViewSet.as_view({'get': 'list'}), name='enrolled-courses'),
     path('', include(router.urls)),
     path('courses/<int:course_id>/quizzes/', QuizListView.as_view(), name='course-quizzes'),
     path('courses/<int:course_id>/assignments/', AssignmentListView.as_view(), name='course-assignments'),
