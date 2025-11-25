@@ -215,7 +215,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ---------------------------------------
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
-    "https://ecggd-front.vercel.app",
+    "https://ccgd-learn-central.vercel.app",
 ]
 CORS_ALLOW_CREDENTIALS = True
 
