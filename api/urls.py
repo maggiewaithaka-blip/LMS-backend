@@ -16,6 +16,8 @@ from grades.views import GradeItemViewSet, GradeViewSet
 from messaging.views import MessageViewSet, NotificationViewSet
 from storage.views import FileViewSet
 from courses.views_resource import CourseResourceViewSet
+from users.views import UserViewSet
+
 # StudentApplicationView removed from public API (student applications handled offline/back-end)
 
 router = routers.DefaultRouter()
@@ -59,6 +61,7 @@ urlpatterns = [
     path('auth/login/', LoginAPIView.as_view(), name='auth_login'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('users/me/', UserViewSet.as_view({'get': 'me'}), name='user-me'),
     path('', include(router.urls)),
     path('courses/<int:course_id>/quizzes/', QuizListView.as_view(), name='course-quizzes'),
     path('courses/<int:course_id>/assignments/', AssignmentListView.as_view(), name='course-assignments'),
