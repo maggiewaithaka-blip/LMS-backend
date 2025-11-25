@@ -27,11 +27,13 @@ if USE_GCP:
     # The K_REVISION environment variable is the specific version of the service.
     # We can construct the URL from these.
     ALLOWED_HOSTS = [
+        "lms-backend-of6zljtfyq-bq.a.run.app",
         "eccgd-lms-backend-536444006215.africa-south1.run.app",
     ]
     
     # CSRF_TRUSTED_ORIGINS for security
     CSRF_TRUSTED_ORIGINS = [
+        "https://lms-backend-of6zljtfyq-bq.a.run.app",
         "https://eccgd-lms-backend-536444006215.africa-south1.run.app",
     ]
     # Add the service URL to CSRF_TRUSTED_ORIGINS
