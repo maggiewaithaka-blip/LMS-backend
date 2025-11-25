@@ -77,5 +77,5 @@ class EnrolledCoursesViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated:
-            return Course.objects.filter(enrollments__user=user).distinct()
+            return Course.objects.filter(enrollment__user=user).distinct()
         return Course.objects.none()
