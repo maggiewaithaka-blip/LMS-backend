@@ -51,7 +51,6 @@ class CourseSectionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsCourseTeacherOrOwner]
 
 
-
 class LessonViewSet(viewsets.ModelViewSet):
     serializer_class = LessonSerializer
     permission_classes = [IsCourseTeacherOrOwner]
@@ -77,5 +76,6 @@ class EnrolledCoursesViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated:
+            # FIX APPLIED HERE: Changed 'enrollments' (plural) to 'enrollment' (singular)
             return Course.objects.filter(enrollment__user=user).distinct()
         return Course.objects.none()
