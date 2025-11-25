@@ -8,6 +8,7 @@ from courses.views import (
     CourseSectionViewSet,
     CourseModuleViewSet,
     LessonViewSet,
+    EnrolledCoursesViewSet,
 )
 from enrollment.views import EnrollmentViewSet, EnrollmentMethodViewSet
 from assignments.views import AssignmentViewSet, SubmissionViewSet, AssignmentGradeViewSet, AssignmentListView
@@ -49,6 +50,7 @@ from users.views import RoleViewSet
 from rest_framework import permissions
 
 # Profile endpoints removed from public API
+router.register(r'courses/enrolled', EnrolledCoursesViewSet, basename='enrolled-courses')
 router.register(r'roles', RoleViewSet)
 
 

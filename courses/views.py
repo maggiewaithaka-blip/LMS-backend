@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from .models import Course, CourseCategory, CourseSection, CourseModule, Lesson
 from .serializers import (
     CourseSerializer,
@@ -10,6 +10,8 @@ from .serializers import (
 )
 from users.permissions import RolePermission
 from users.permissions_obj import IsCourseTeacherOrOwner
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -66,3 +68,14 @@ class CourseModuleViewSet(viewsets.ModelViewSet):
     queryset = CourseModule.objects.all().order_by('id')
     serializer_class = CourseModuleSerializer
     permission_classes = [IsCourseTeacherOrOwner]
+
+
+class EnrolledCoursesViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = CourseSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_authenticated:
+            return Course.objects.filter(enrollments__user=user).distinct()
+        return Course.objects.none()
