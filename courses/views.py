@@ -60,7 +60,7 @@ class LessonViewSet(viewsets.ModelViewSet):
         course_id = self.kwargs.get('course_pk') or self.request.query_params.get('course')
         qs = Lesson.objects.all().order_by('position')
         if course_id:
-            # FIX: Use explicit Foreign Key PK lookup (course__pk) for robustness.
+            # FIX: Lesson has a direct FK to Course, so we use course__pk.
             qs = qs.filter(course__pk=course_id)
         return qs
 
@@ -75,10 +75,9 @@ class CourseModuleViewSet(viewsets.ModelViewSet):
         qs = CourseModule.objects.all().order_by('id')
         
         if course_id:
-            # FINAL FIX: Use explicit Foreign Key PK lookup (course__pk).
-            # This is the most robust way to filter by the related object's ID 
-            # and should resolve the Internal Server Error (500).
-            qs = qs.filter(course__pk=course_id) 
+            # FINAL FIX: CourseModule is linked via CourseSection.
+            # We must traverse the relationship: module -> section -> course -> pk
+            qs = qs.filter(section__course__pk=course_id) 
             
         return qs
 
