@@ -9,7 +9,7 @@ class EnrollmentMethod(models.Model):
 
 
 class Enrollment(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='enrollments')
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     method = models.ForeignKey(EnrollmentMethod, on_delete=models.SET_NULL, null=True, blank=True)
     enrolled_at = models.DateTimeField(auto_now_add=True)
