@@ -60,7 +60,8 @@ class LessonViewSet(viewsets.ModelViewSet):
         course_id = self.kwargs.get('course_pk') or self.request.query_params.get('course')
         qs = Lesson.objects.all().order_by('position')
         if course_id:
-            qs = qs.filter(course_id=course_id)
+            # FIX APPLIED: Changed lookup from 'course_id' to 'course'
+            qs = qs.filter(course=course_id)
         return qs
 
 
@@ -68,18 +69,17 @@ class CourseModuleViewSet(viewsets.ModelViewSet):
     serializer_class = CourseModuleSerializer
     permission_classes = [IsCourseTeacherOrOwner]
 
-    # --- FIX APPLIED HERE ---
     def get_queryset(self):
         # The nested router provides the course ID as 'course_pk'
         course_id = self.kwargs.get('course_pk')
         qs = CourseModule.objects.all().order_by('id')
         
         if course_id:
-            # Filter modules to include only those belonging to the course
-            qs = qs.filter(course_id=course_id)
+            # FIX APPLIED: Changed lookup from 'course_id' to 'course'
+            # This resolves the Internal Server Error (500) from the previous log.
+            qs = qs.filter(course=course_id) 
             
         return qs
-    # -----------------------
 
 
 class EnrolledCoursesViewSet(viewsets.ReadOnlyModelViewSet):
