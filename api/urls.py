@@ -26,7 +26,7 @@ router.register(r'users', UserViewSet)
 router.register(r'courses', CourseViewSet)
 router.register(r'categories', CourseCategoryViewSet)
 router.register(r'sections', CourseSectionViewSet)
-router.register(r'modules', CourseModuleViewSet)
+# REMOVED: router.register(r'modules', CourseModuleViewSet) - Modules are now nested
 router.register(r'enrollments', EnrollmentViewSet)
 router.register(r'enrollment-methods', EnrollmentMethodViewSet)
 router.register(r'assignments', AssignmentViewSet)
@@ -42,10 +42,13 @@ router.register(r'messages', MessageViewSet)
 router.register(r'notifications', NotificationViewSet)
 router.register(r'files', FileViewSet)
 
-# Register lessons as a nested route under courses
 from rest_framework_nested import routers as nested_routers
 course_router = nested_routers.NestedDefaultRouter(router, r'courses', lookup='course')
+
+# ADDED: Register CourseModuleViewSet as a nested route under courses
+course_router.register(r'modules', CourseModuleViewSet, basename='course-modules')
 course_router.register(r'lessons', LessonViewSet, basename='course-lessons')
+
 from users.views import RoleViewSet
 from rest_framework import permissions
 

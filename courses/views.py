@@ -56,6 +56,7 @@ class LessonViewSet(viewsets.ModelViewSet):
     permission_classes = [IsCourseTeacherOrOwner]
 
     def get_queryset(self):
+        # Nested Router uses 'course_pk'
         course_id = self.kwargs.get('course_pk') or self.request.query_params.get('course')
         qs = Lesson.objects.all().order_by('position')
         if course_id:
@@ -64,9 +65,21 @@ class LessonViewSet(viewsets.ModelViewSet):
 
 
 class CourseModuleViewSet(viewsets.ModelViewSet):
-    queryset = CourseModule.objects.all().order_by('id')
     serializer_class = CourseModuleSerializer
     permission_classes = [IsCourseTeacherOrOwner]
+
+    # --- FIX APPLIED HERE ---
+    def get_queryset(self):
+        # The nested router provides the course ID as 'course_pk'
+        course_id = self.kwargs.get('course_pk')
+        qs = CourseModule.objects.all().order_by('id')
+        
+        if course_id:
+            # Filter modules to include only those belonging to the course
+            qs = qs.filter(course_id=course_id)
+            
+        return qs
+    # -----------------------
 
 
 class EnrolledCoursesViewSet(viewsets.ReadOnlyModelViewSet):
@@ -76,6 +89,5 @@ class EnrolledCoursesViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated:
-            # FIX APPLIED HERE: Changed 'enrollments' (plural) to 'enrollment' (singular)
             return Course.objects.filter(enrollment__user=user).distinct()
         return Course.objects.none()
