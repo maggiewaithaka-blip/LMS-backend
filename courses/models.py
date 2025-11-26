@@ -1,3 +1,4 @@
+from assignments.models import Attachment
 from django.db import models
 from django.conf import settings
 
@@ -29,15 +30,15 @@ class CourseSection(models.Model):
     title = models.CharField(max_length=255, blank=True)
     summary = models.TextField(blank=True)
     position = models.PositiveIntegerField(default=0)
+    assignments = models.ManyToManyField(Attachment, blank=True, related_name='section_assignments')
+    quizzes = models.ManyToManyField(Attachment, blank=True, related_name='section_quizzes')
+    resources = models.ManyToManyField(Attachment, blank=True, related_name='section_resources')
+    notifications = models.TextField(blank=True, help_text="Messages or notifications for this section")
+    storage = models.TextField(blank=True, help_text="Uploaded documents or file references")
 
 
 
 
-class CourseModule(models.Model):
-    section = models.ForeignKey(CourseSection, on_delete=models.CASCADE, related_name='modules')
-    name = models.CharField(max_length=255)
-    module_type = models.CharField(max_length=50)
-    visible = models.BooleanField(default=True)
 
 class Lesson(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')

@@ -2,8 +2,20 @@ from django.contrib import admin
 from django.http import HttpResponse
 import csv
 
-from .models import CourseCategory, Course, CourseSection, CourseModule, Lesson
-from .models_resource import CourseResource
+from .models import CourseCategory, Course, CourseSection
+from assignments.models import Attachment
+
+class AssignmentAttachmentInline(admin.TabularInline):
+    model = CourseSection.assignments.through
+    extra = 1
+
+class QuizAttachmentInline(admin.TabularInline):
+    model = CourseSection.quizzes.through
+    extra = 1
+
+class ResourceAttachmentInline(admin.TabularInline):
+    model = CourseSection.resources.through
+    extra = 1
 
 
 class CourseSectionInline(admin.TabularInline):
@@ -13,10 +25,6 @@ class CourseSectionInline(admin.TabularInline):
     readonly_fields = ()
 
 
-class CourseModuleInline(admin.TabularInline):
-    model = CourseModule
-    extra = 0
-    fields = ('name', 'module_type', 'visible')
 
 
 def export_as_csv_action(description="Export selected objects as CSV", fields=None):
@@ -55,27 +63,11 @@ class CourseAdmin(admin.ModelAdmin):
 class CourseSectionAdmin(admin.ModelAdmin):
     list_display = ('id', 'course', 'title', 'position')
     list_filter = ('course',)
-    inlines = [CourseModuleInline]
+    inlines = [AssignmentAttachmentInline, QuizAttachmentInline, ResourceAttachmentInline]
     actions = [export_as_csv_action(fields=['id', 'course_id', 'title', 'position'])]
 
 
-@admin.register(CourseModule)
-class CourseModuleAdmin(admin.ModelAdmin):
-    list_display = ('id', 'section', 'name', 'module_type', 'visible')
-    list_filter = ('module_type', 'visible')
-    actions = [export_as_csv_action(fields=['id', 'section_id', 'name', 'module_type', 'visible'])]
 
 
-@admin.register(CourseResource)
-class CourseResourceAdmin(admin.ModelAdmin):
-    list_display = ('id', 'course', 'title', 'resource_type', 'file', 'url', 'created_at')
-    list_filter = ('resource_type', 'course')
-    search_fields = ('title', 'course__shortname')
-    actions = [export_as_csv_action(fields=['id', 'course_id', 'title', 'resource_type', 'file_id', 'url', 'created_at'])]
 
 
-@admin.register(Lesson)
-class LessonAdmin(admin.ModelAdmin):
-    list_display = ('id', 'course', 'title', 'position', 'visible')
-    list_filter = ('course',)
-    search_fields = ('title',)

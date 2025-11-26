@@ -1,12 +1,10 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from .models import Course, CourseCategory, CourseSection, CourseModule, Lesson
+from .models import Course, CourseCategory, CourseSection
 from .serializers import (
     CourseSerializer,
     CourseCategorySerializer,
     CourseSectionSerializer,
-    CourseModuleSerializer,
-    LessonSerializer,
 )
 from users.permissions import RolePermission
 from users.permissions_obj import IsCourseTeacherOrOwner
@@ -46,38 +44,17 @@ class CourseCategoryViewSet(viewsets.ModelViewSet):
 
 
 class CourseSectionViewSet(viewsets.ModelViewSet):
-    queryset = CourseSection.objects.all().order_by('id')
     serializer_class = CourseSectionSerializer
     permission_classes = [IsCourseTeacherOrOwner]
 
-
-class LessonViewSet(viewsets.ModelViewSet):
-    serializer_class = LessonSerializer
-    permission_classes = [IsCourseTeacherOrOwner]
-
     def get_queryset(self):
-        # Nested Router uses 'course_pk'
         course_id = self.kwargs.get('course_pk') or self.request.query_params.get('course')
-        qs = Lesson.objects.all().order_by('position')
+        qs = CourseSection.objects.all().order_by('position')
         if course_id:
-            # FIX: Lesson has a direct FK to Course, so we use course__pk.
             qs = qs.filter(course__pk=course_id)
         return qs
 
 
-class CourseModuleViewSet(viewsets.ModelViewSet):
-    serializer_class = CourseModuleSerializer
-    permission_classes = [IsCourseTeacherOrOwner]
-
-    def get_queryset(self):
-        # The nested router provides the course ID as 'course_pk'
-        course_id = self.kwargs.get('course_pk')
-        qs = CourseModule.objects.all().order_by('id')
-        
-        if course_id:
-            # FINAL FIX: CourseModule is linked via CourseSection.
-            # We must traverse the relationship: module -> section -> course -> pk
-            qs = qs.filter(section__course__pk=course_id) 
             
         return qs
 

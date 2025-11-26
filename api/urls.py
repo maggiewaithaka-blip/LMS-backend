@@ -6,17 +6,15 @@ from courses.views import (
     CourseViewSet,
     CourseCategoryViewSet,
     CourseSectionViewSet,
-    CourseModuleViewSet,
-    LessonViewSet,
     EnrolledCoursesViewSet,
 )
 from enrollment.views import EnrollmentViewSet, EnrollmentMethodViewSet
-from assignments.views import AssignmentViewSet, SubmissionViewSet, AssignmentGradeViewSet, AssignmentListView
-from quizzes.views import QuizViewSet, QuestionViewSet, QuizAttemptViewSet, QuestionResponseViewSet, QuizListView
+## Removed assignments view imports
+## Removed quizzes view imports
 from grades.views import GradeItemViewSet, GradeViewSet
 from messaging.views import MessageViewSet, NotificationViewSet
 from storage.views import FileViewSet
-from courses.views_resource import CourseResourceViewSet
+## Removed CourseResourceViewSet import
 from users.views import UserViewSet
 
 # StudentApplicationView removed from public API (student applications handled offline/back-end)
@@ -25,17 +23,12 @@ router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
 router.register(r'courses', CourseViewSet)
 router.register(r'categories', CourseCategoryViewSet)
-router.register(r'sections', CourseSectionViewSet)
+router.register(r'sections', CourseSectionViewSet, basename='course-section')
 # REMOVED: router.register(r'modules', CourseModuleViewSet) - Modules are now nested
 router.register(r'enrollments', EnrollmentViewSet)
 router.register(r'enrollment-methods', EnrollmentMethodViewSet)
-router.register(r'assignments', AssignmentViewSet)
-router.register(r'submissions', SubmissionViewSet)
-router.register(r'assignment-grades', AssignmentGradeViewSet)
-router.register(r'quizzes', QuizViewSet)
-router.register(r'questions', QuestionViewSet)
-router.register(r'quiz-attempts', QuizAttemptViewSet)
-router.register(r'question-responses', QuestionResponseViewSet)
+## Removed assignments router registrations
+## Removed quizzes router registrations
 router.register(r'grade-items', GradeItemViewSet)
 router.register(r'grades', GradeViewSet)
 router.register(r'messages', MessageViewSet)
@@ -46,8 +39,8 @@ from rest_framework_nested import routers as nested_routers
 course_router = nested_routers.NestedDefaultRouter(router, r'courses', lookup='course')
 
 # ADDED: Register CourseModuleViewSet as a nested route under courses
-course_router.register(r'modules', CourseModuleViewSet, basename='course-modules')
-course_router.register(r'lessons', LessonViewSet, basename='course-lessons')
+course_router.register(r'sections', CourseSectionViewSet, basename='course-sections')
+## Removed CourseModuleViewSet and LessonViewSet nested routes
 
 from users.views import RoleViewSet
 from rest_framework import permissions
@@ -68,8 +61,8 @@ urlpatterns = [
     path('users/me/', UserViewSet.as_view({'get': 'me'}), name='user-me'),
     path('courses/enrolled/', EnrolledCoursesViewSet.as_view({'get': 'list'}), name='enrolled-courses'),
     path('', include(router.urls)),
-    path('courses/<int:course_id>/quizzes/', QuizListView.as_view(), name='course-quizzes'),
-    path('courses/<int:course_id>/assignments/', AssignmentListView.as_view(), name='course-assignments'),
+    # path('courses/<int:course_id>/quizzes/', QuizListView.as_view()),
+    # path('courses/<int:course_id>/assignments/', AssignmentListView.as_view()),
     # Profile upload endpoint disabled (profile management handled by backend)
     path('', include(course_router.urls)),
 ]

@@ -2,12 +2,10 @@ from django.contrib import admin
 from django.http import HttpResponse
 import csv
 
-from .models import GradeItem, Grade
+## Removed GradeItem and Grade imports
 
 
-class GradeInline(admin.TabularInline):
-    model = Grade
-    extra = 0
+## Removed GradeInline
 
 
 def export_as_csv_action(description="Export selected objects as CSV", fields=None):
@@ -26,18 +24,10 @@ def export_as_csv_action(description="Export selected objects as CSV", fields=No
     return export_as_csv
 
 
-@admin.register(GradeItem)
-class GradeItemAdmin(admin.ModelAdmin):
-    list_display = ('id', 'course', 'name', 'weight')
-    list_filter = ('course',)
-    search_fields = ('name',)
-    inlines = [GradeInline]
-    actions = [export_as_csv_action(fields=['id', 'course_id', 'name', 'weight'])]
+## Removed GradeItemAdmin
 
 
-@admin.register(Grade)
-class GradeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'item', 'user', 'value')
+## Removed GradeAdmin
     list_filter = ('item',)
     search_fields = ('user__username',)
     actions = [export_as_csv_action(fields=['id', 'item_id', 'user_id', 'value'])]
