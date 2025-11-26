@@ -1,6 +1,4 @@
 from django.contrib import admin
 from .models import Attachment
 
-@admin.register(Attachment)
-class AttachmentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'type', 'file', 'url', 'text', 'created_at')
+## Removed Attachment admin registration

@@ -98,6 +98,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "django_celery_beat",
+    "nested_admin",
     "drf_yasg",
     "rest_framework_simplejwt",
     "storages", # For Google Cloud Storage
@@ -113,7 +114,7 @@ INSTALLED_APPS = [
     'storage',
     'reports',
     'plugins',
-]
+    ]
 
 # ---------------------------------------
 # AUTHENTICATION

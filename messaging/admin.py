@@ -21,19 +21,4 @@ def export_as_csv_action(description="Export selected objects as CSV", fields=No
     return export_as_csv
 
 
-@admin.register(Message)
-class MessageAdmin(admin.ModelAdmin):
-    list_display = ('id', 'sender', 'recipient', 'subject', 'sent_at', 'read')
-    list_filter = ('read',)
-    search_fields = ('sender__username', 'recipient__username', 'subject')
-    readonly_fields = ('sent_at',)
-    actions = [export_as_csv_action(fields=['id', 'sender_id', 'recipient_id', 'subject', 'sent_at', 'read'])]
-
-
-@admin.register(Notification)
-class NotificationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'title', 'created_at', 'read')
-    list_filter = ('read',)
-    search_fields = ('user__username', 'title')
-    readonly_fields = ('created_at',)
-    actions = [export_as_csv_action(fields=['id', 'user_id', 'title', 'created_at', 'read'])]
+## Removed Message and Notification admin registrations

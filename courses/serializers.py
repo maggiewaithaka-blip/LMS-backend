@@ -14,10 +14,41 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = ['id', 'shortname', 'fullname', 'summary', 'visible', 'start_date', 'end_date', 'category']
 
 
+
+# --- Nested Serializers ---
+from assignments.models import Attachment
+from .models_resource import Assignment, Quiz, Resource
+
+class AttachmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Attachment
+        fields = ['id', 'type', 'file', 'url', 'text', 'created_at']
+
+class AssignmentSerializer(serializers.ModelSerializer):
+    attachments = AttachmentSerializer(many=True, read_only=True)
+    class Meta:
+        model = Assignment
+        fields = ['id', 'title', 'description', 'attachments']
+
+class QuizSerializer(serializers.ModelSerializer):
+    attachments = AttachmentSerializer(many=True, read_only=True)
+    class Meta:
+        model = Quiz
+        fields = ['id', 'title', 'description', 'attachments']
+
+class ResourceSerializer(serializers.ModelSerializer):
+    attachments = AttachmentSerializer(many=True, read_only=True)
+    class Meta:
+        model = Resource
+        fields = ['id', 'title', 'description', 'attachments']
+
 class CourseSectionSerializer(serializers.ModelSerializer):
+    assignments = AssignmentSerializer(many=True, read_only=True)
+    quizzes = QuizSerializer(many=True, read_only=True)
+    resources = ResourceSerializer(many=True, read_only=True)
     class Meta:
         model = CourseSection
-        fields = ['id', 'course', 'title', 'summary', 'position']
+        fields = ['id', 'course', 'title', 'summary', 'position', 'assignments', 'quizzes', 'resources']
 
 
 

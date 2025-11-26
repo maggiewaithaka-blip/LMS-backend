@@ -30,9 +30,7 @@ class CourseSection(models.Model):
     title = models.CharField(max_length=255, blank=True)
     summary = models.TextField(blank=True)
     position = models.PositiveIntegerField(default=0)
-    assignments = models.ManyToManyField(Attachment, blank=True, related_name='section_assignments')
-    quizzes = models.ManyToManyField(Attachment, blank=True, related_name='section_quizzes')
-    resources = models.ManyToManyField(Attachment, blank=True, related_name='section_resources')
+    # assignments, quizzes, resources are now related via ForeignKey in their respective models
     notifications = models.TextField(blank=True, help_text="Messages or notifications for this section")
     storage = models.TextField(blank=True, help_text="Uploaded documents or file references")
 
