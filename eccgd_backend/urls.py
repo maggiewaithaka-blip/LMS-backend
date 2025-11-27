@@ -9,13 +9,16 @@ urlpatterns = [
     path('api/', include('api.urls')),
 ]
 
-# --- DEVELOPMENT/DEBUG ONLY URLS ---
+# 🚀 DEVELOPMENT/DEBUG ONLY URLS 🚀
+# These URLs and their associated imports will ONLY be executed when settings.DEBUG is True.
 if settings.DEBUG:
-    # 1. Imports for Swagger/OpenAPI schema are now inside the DEBUG block
+    # --- Conditional Imports for Debug/Dev Dependencies ---
+    # Moved inside the if block to prevent ImportError in production (DEBUG=False)
     from rest_framework import permissions
     from drf_yasg.views import get_schema_view
     from drf_yasg import openapi
 
+    # 1. Define schema view
     schema_view = get_schema_view(
         openapi.Info(
             title="LMS Backend API",
@@ -26,11 +29,11 @@ if settings.DEBUG:
         permission_classes=(permissions.AllowAny,),
     )
 
-    # 2. Append Swagger/Redoc paths only in DEBUG mode
+    # 2. Append Swagger/Redoc paths
     urlpatterns += [
         path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
         path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     ]
 
-    # 3. Append static/media file serving (already here, but good practice)
+    # 3. Append static/media file serving (often useful for local development)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
