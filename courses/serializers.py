@@ -25,6 +25,7 @@ def get_attachment_serializer():
     from assignments.serializers import AttachmentSerializer
     return AttachmentSerializer
 
+
 class AssignmentSerializer(serializers.ModelSerializer):
     attachments = serializers.SerializerMethodField()
     class Meta:
@@ -32,7 +33,8 @@ class AssignmentSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'attachments']
     def get_attachments(self, obj):
         AttachmentSerializer = get_attachment_serializer()
-        return AttachmentSerializer(obj.attachments.all(), many=True, read_only=True).data
+        return AttachmentSerializer(obj.attachments.all(), many=True).data
+
 
 class QuizSerializer(serializers.ModelSerializer):
     attachments = serializers.SerializerMethodField()
@@ -41,7 +43,8 @@ class QuizSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'attachments']
     def get_attachments(self, obj):
         AttachmentSerializer = get_attachment_serializer()
-        return AttachmentSerializer(obj.attachments.all(), many=True, read_only=True).data
+        return AttachmentSerializer(obj.attachments.all(), many=True).data
+
 
 class ResourceSerializer(serializers.ModelSerializer):
     attachments = serializers.SerializerMethodField()
@@ -50,7 +53,7 @@ class ResourceSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'attachments']
     def get_attachments(self, obj):
         AttachmentSerializer = get_attachment_serializer()
-        return AttachmentSerializer(obj.attachments.all(), many=True, read_only=True).data
+        return AttachmentSerializer(obj.attachments.all(), many=True).data
 
 class CourseSectionSerializer(serializers.ModelSerializer):
     assignments = AssignmentSerializer(many=True, read_only=True)
