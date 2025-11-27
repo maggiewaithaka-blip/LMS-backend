@@ -1,5 +1,20 @@
 from rest_framework import serializers
-from .models import Assignment, Submission, AssignmentGrade
+from .models import Assignment, Submission, AssignmentGrade, Attachment
+
+class AttachmentSerializer(serializers.ModelSerializer):
+    file = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Attachment
+        fields = ['id', 'type', 'file', 'url', 'text', 'created_at']
+
+    def get_file(self, obj):
+        if obj.file:
+            try:
+                return obj.file.url
+            except Exception:
+                return None
+        return None
 
 
 class AssignmentSerializer(serializers.ModelSerializer):
