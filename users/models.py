@@ -2,36 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 
-class User(AbstractUser):
-    groups = models.ManyToManyField(
-        'auth.Group',
-        verbose_name='groups',
-        blank=True,
-        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
-        related_name="user_set_custom",  # Custom related_name
-        related_query_name="user",
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        verbose_name='user permissions',
-        blank=True,
-        help_text='Specific permissions for this user.',
-        related_name="user_set_custom",  # Custom related_name
-        related_query_name="user",
-    )
-    # Extend with fields commonly used in Moodle mapping
-    timezone = models.CharField(max_length=64, blank=True, null=True)
-    phone = models.CharField(max_length=32, blank=True, null=True)
-    institution = models.CharField(max_length=255, blank=True, null=True)
-
-    def has_role(self, role_name: str) -> bool:
-        """Return True if the user has a Role with the given name."""
-        return UserRole.objects.filter(user=self, role__name=role_name).exists()
-
-    def has_any_role(self, role_names) -> bool:
-        """Return True if the user has any role in the iterable role_names."""
-        return UserRole.objects.filter(user=self, role__name__in=role_names).exists()
-
+# --- 1. Role and UserRole MUST be defined before User ---
+# This prevents the load-time error in User.has_role() and User.has_any_role()
 
 class Role(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -42,9 +14,47 @@ class Role(models.Model):
 
 
 class UserRole(models.Model):
+    # Use string literals ('users.User') for forward references
     user = models.ForeignKey('users.User', on_delete=models.CASCADE)
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
     assigned_at = models.DateTimeField(auto_now_add=True)
+
+# ------------------------------------------------------------
+
+
+class User(AbstractUser):
+    # Custom related_name required because AbstractUser provides its own 'user'
+    # related_name for both groups and user_permissions.
+    groups = models.ManyToManyField(
+        'auth.Group',
+        verbose_name='groups',
+        blank=True,
+        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
+        related_name="user_set_custom",
+        related_query_name="user",
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        verbose_name='user permissions',
+        blank=True,
+        help_text='Specific permissions for this user.',
+        related_name="user_set_custom",
+        related_query_name="user",
+    )
+    # Extend with fields commonly used in Moodle mapping
+    timezone = models.CharField(max_length=64, blank=True, null=True)
+    phone = models.CharField(max_length=32, blank=True, null=True)
+    institution = models.CharField(max_length=255, blank=True, null=True)
+
+    def has_role(self, role_name: str) -> bool:
+        """Return True if the user has a Role with the given name."""
+        # UserRole is now defined and accessible here
+        return UserRole.objects.filter(user=self, role__name=role_name).exists()
+
+    def has_any_role(self, role_names) -> bool:
+        """Return True if the user has any role in the iterable role_names."""
+        # UserRole is now defined and accessible here
+        return UserRole.objects.filter(user=self, role__name__in=role_names).exists()
 
 
 class Profile(models.Model):
