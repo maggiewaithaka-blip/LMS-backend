@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Course, CourseCategory, CourseSection
-from .models import Assignment, Quiz, Resource # Assuming Assignment, Quiz, Resource are in .models now
+from .models_resource import Assignment, Quiz, Resource
 
 # REMOVED: from assignments.serializers import AttachmentSerializer
 
