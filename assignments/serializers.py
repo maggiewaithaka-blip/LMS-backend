@@ -19,23 +19,6 @@ class AttachmentSerializer(serializers.ModelSerializer):
         return None
 
 
-class SubmissionSerializer(serializers.ModelSerializer):
-    # file = serializers.SerializerMethodField()  # Commenting out to remove reference to file
-
-    class Meta:
-        # model = Submission  # Commenting out to remove reference to Submission
-        fields = ['id', 'assignment', 'user', 'submitted_at', 'file', 'data']
-        read_only_fields = ['id', 'submitted_at']
-
-    def get_file(self, obj):
-        if obj.file:
-            try:
-                return obj.file.url
-            except Exception:
-                return None
-        return None
-
-
 class AssignmentGradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssignmentGrade

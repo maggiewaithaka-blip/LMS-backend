@@ -4,7 +4,7 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS
 class IsCourseTeacherOrOwner(BasePermission):
     """Object-level permission to only allow course owners or teachers of the course
     to edit objects. Read-only access is allowed to anyone.
-    Works for Course, CourseSection, CourseModule, Submission, AssignmentGrade, etc.
+    Works for Course, CourseSection, CourseModule, AssignmentGrade, etc.
     """
 
     def has_object_permission(self, request, view, obj):
@@ -35,8 +35,7 @@ class IsCourseTeacherOrOwner(BasePermission):
                     course = obj.section.course
                 elif hasattr(obj, 'assignment') and hasattr(obj.assignment, 'course'):
                     course = obj.assignment.course
-                elif hasattr(obj, 'submission') and hasattr(obj.submission, 'assignment') and hasattr(obj.submission.assignment, 'course'):
-                    course = obj.submission.assignment.course
+                # Removed Submission references
         except Exception:
             course = None
 
