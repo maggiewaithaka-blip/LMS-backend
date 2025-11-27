@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Submission, AssignmentGrade, Attachment
+from .models import AssignmentGrade, Attachment
 
 
 
@@ -19,15 +19,11 @@ class AttachmentSerializer(serializers.ModelSerializer):
         return None
 
 
-
-
-
-
 class SubmissionSerializer(serializers.ModelSerializer):
-    file = serializers.SerializerMethodField()
+    # file = serializers.SerializerMethodField()  # Commenting out to remove reference to file
 
     class Meta:
-        model = Submission
+        # model = Submission  # Commenting out to remove reference to Submission
         fields = ['id', 'assignment', 'user', 'submitted_at', 'file', 'data']
         read_only_fields = ['id', 'submitted_at']
 
@@ -43,4 +39,4 @@ class SubmissionSerializer(serializers.ModelSerializer):
 class AssignmentGradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssignmentGrade
-        fields = ['id', 'submission', 'grader', 'score', 'feedback']
+        fields = ['id', 'grader', 'score', 'feedback']  # Removed 'submission' from fields
