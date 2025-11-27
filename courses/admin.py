@@ -1,10 +1,11 @@
+
 import nested_admin
 from django.contrib import admin
 from django.http import HttpResponse
 import csv
 
 from .models import CourseCategory, Course, CourseSection
-# REMOVED: from assignments.models import Attachment  <-- This was the crash source
+from assignments.models import Attachment
 from .models_resource import Assignment, Quiz, Resource
 
 
@@ -12,8 +13,7 @@ from .models_resource import Assignment, Quiz, Resource
 
 # Nested inline for Assignment attachments (FK-based)
 class AssignmentAttachmentInline(nested_admin.NestedTabularInline):
-    # FIX: Use string literal for the model reference
-    model = 'assignments.Attachment' 
+    model = Attachment
     extra = 1
     verbose_name = "Assignment Attachment"
     fk_name = 'assignment'
@@ -25,8 +25,7 @@ class AssignmentAttachmentInline(nested_admin.NestedTabularInline):
 
 # Nested inline for Quiz attachments (FK-based)
 class QuizAttachmentInline(nested_admin.NestedTabularInline):
-    # FIX: Use string literal for the model reference
-    model = 'assignments.Attachment'
+    model = Attachment
     extra = 1
     verbose_name = "Quiz Attachment"
     fk_name = 'quiz'
@@ -38,8 +37,7 @@ class QuizAttachmentInline(nested_admin.NestedTabularInline):
 
 # Nested inline for Resource attachments (FK-based)
 class ResourceAttachmentInline(nested_admin.NestedTabularInline):
-    # FIX: Use string literal for the model reference
-    model = 'assignments.Attachment'
+    model = Attachment
     extra = 1
     verbose_name = "Resource Attachment"
     fk_name = 'resource'

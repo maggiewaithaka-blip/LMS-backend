@@ -1,14 +1,16 @@
 from rest_framework import serializers
-from .models import Assignment, Submission, AssignmentGrade, Attachment
+from .models import Submission, AssignmentGrade, Attachment
+
+
 
 class AttachmentSerializer(serializers.ModelSerializer):
-    file = serializers.SerializerMethodField()
+    file_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Attachment
-        fields = ['id', 'type', 'file', 'url', 'text', 'created_at']
+        fields = ['id', 'type', 'file_url', 'url', 'text', 'created_at']
 
-    def get_file(self, obj):
+    def get_file_url(self, obj):
         if obj.file:
             try:
                 return obj.file.url
@@ -18,12 +20,6 @@ class AttachmentSerializer(serializers.ModelSerializer):
 
 
 
-class AssignmentSerializer(serializers.ModelSerializer):
-    attachments = AttachmentSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Assignment
-        fields = ['id', 'course', 'title', 'description', 'due_date', 'attachments']
 
 
 

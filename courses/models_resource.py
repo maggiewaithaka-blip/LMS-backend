@@ -1,3 +1,4 @@
+
 from django.db import models
 # REMOVED: from assignments.models import Attachment 
 # FIX: The model definition below will now use a string literal to reference Attachment.
