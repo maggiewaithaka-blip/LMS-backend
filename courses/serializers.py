@@ -26,9 +26,13 @@ def get_deferred_attachments(serializer_instance, obj):
     """Handles the deferred import and serialization of attachments."""
     # Local, deferred import to run at runtime, not startup
     from assignments.serializers import AttachmentSerializer
-    attachments_qs = obj.attachments.all()
-    # Pass the context from the outer serializer instance
-    return AttachmentSerializer(attachments_qs, many=True, context=serializer_instance.context).data
+    attachments_qs = getattr(obj, 'attachments', None)
+    if attachments_qs is None:
+        return []
+    try:
+        return AttachmentSerializer(attachments_qs.all(), many=True, context=serializer_instance.context).data
+    except Exception:
+        return []
 
 
 # --- Nested Serializers with Circular Dependency Fix ---
