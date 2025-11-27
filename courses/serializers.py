@@ -15,28 +15,42 @@ class CourseSerializer(serializers.ModelSerializer):
 
 
 
-# --- Nested Serializers ---
 
-from assignments.serializers import AttachmentSerializer
+# --- Nested Serializers ---
 from .models_resource import Assignment, Quiz, Resource
 
+from rest_framework import serializers
+
+def get_attachment_serializer():
+    from assignments.serializers import AttachmentSerializer
+    return AttachmentSerializer
+
 class AssignmentSerializer(serializers.ModelSerializer):
-    attachments = AttachmentSerializer(many=True, read_only=True)
+    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Assignment
         fields = ['id', 'title', 'description', 'attachments']
+    def get_attachments(self, obj):
+        AttachmentSerializer = get_attachment_serializer()
+        return AttachmentSerializer(obj.attachments.all(), many=True, read_only=True).data
 
 class QuizSerializer(serializers.ModelSerializer):
-    attachments = AttachmentSerializer(many=True, read_only=True)
+    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Quiz
         fields = ['id', 'title', 'description', 'attachments']
+    def get_attachments(self, obj):
+        AttachmentSerializer = get_attachment_serializer()
+        return AttachmentSerializer(obj.attachments.all(), many=True, read_only=True).data
 
 class ResourceSerializer(serializers.ModelSerializer):
-    attachments = AttachmentSerializer(many=True, read_only=True)
+    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Resource
         fields = ['id', 'title', 'description', 'attachments']
+    def get_attachments(self, obj):
+        AttachmentSerializer = get_attachment_serializer()
+        return AttachmentSerializer(obj.attachments.all(), many=True, read_only=True).data
 
 class CourseSectionSerializer(serializers.ModelSerializer):
     assignments = AssignmentSerializer(many=True, read_only=True)
