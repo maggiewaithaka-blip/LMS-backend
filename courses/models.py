@@ -1,6 +1,6 @@
-from assignments.models import Attachment
 from django.db import models
 from django.conf import settings
+# Removed: from assignments.models import Attachment  <-- This was the crash source
 
 
 class CourseCategory(models.Model):
@@ -19,6 +19,7 @@ class Course(models.Model):
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
     category = models.ForeignKey(CourseCategory, on_delete=models.SET_NULL, null=True, blank=True)
+    # The 'users.User' string reference is correct and safe
     owner = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='owned_courses')
 
     def __str__(self):
@@ -33,9 +34,6 @@ class CourseSection(models.Model):
     # assignments, quizzes, resources are now related via ForeignKey in their respective models
     notifications = models.TextField(blank=True, help_text="Messages or notifications for this section")
     storage = models.TextField(blank=True, help_text="Uploaded documents or file references")
-
-
-
 
 
 class Lesson(models.Model):

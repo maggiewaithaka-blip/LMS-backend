@@ -22,8 +22,3 @@ class Attachment(models.Model):
 
     def __str__(self):
         return f"{self.type}: {self.file or self.url or self.text[:30]}"
-
-from django.db import models
-from django.conf import settings
-
-
