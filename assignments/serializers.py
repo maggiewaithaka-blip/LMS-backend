@@ -17,10 +17,13 @@ class AttachmentSerializer(serializers.ModelSerializer):
         return None
 
 
+
 class AssignmentSerializer(serializers.ModelSerializer):
+    attachments = AttachmentSerializer(many=True, read_only=True)
+
     class Meta:
         model = Assignment
-        fields = ['id', 'course', 'title', 'description', 'due_date']
+        fields = ['id', 'course', 'title', 'description', 'due_date', 'attachments']
 
 
 

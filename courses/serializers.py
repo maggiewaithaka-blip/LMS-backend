@@ -16,13 +16,9 @@ class CourseSerializer(serializers.ModelSerializer):
 
 
 # --- Nested Serializers ---
-from assignments.models import Attachment
-from .models_resource import Assignment, Quiz, Resource
 
-class AttachmentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Attachment
-        fields = ['id', 'type', 'file', 'url', 'text', 'created_at']
+from assignments.serializers import AttachmentSerializer
+from .models_resource import Assignment, Quiz, Resource
 
 class AssignmentSerializer(serializers.ModelSerializer):
     attachments = AttachmentSerializer(many=True, read_only=True)
