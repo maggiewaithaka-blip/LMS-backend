@@ -1,13 +1,36 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from .models import Course, CourseCategory, CourseSection
+from users.permissions import RolePermission
+from users.permissions_obj import IsCourseTeacherOrOwner
+from .models import Course, CourseCategory, CourseSection, Assignment, Quiz, Resource, Attachment
 from .serializers import (
     CourseSerializer,
     CourseCategorySerializer,
     CourseSectionSerializer,
+    AssignmentSerializer,
+    QuizSerializer,
+    ResourceSerializer,
+    AttachmentSerializer,
 )
-from users.permissions import RolePermission
-from users.permissions_obj import IsCourseTeacherOrOwner
+class AssignmentViewSet(viewsets.ModelViewSet):
+    queryset = Assignment.objects.all().order_by('id')
+    serializer_class = AssignmentSerializer
+    permission_classes = [IsCourseTeacherOrOwner]
+
+class QuizViewSet(viewsets.ModelViewSet):
+    queryset = Quiz.objects.all().order_by('id')
+    serializer_class = QuizSerializer
+    permission_classes = [IsCourseTeacherOrOwner]
+
+class ResourceViewSet(viewsets.ModelViewSet):
+    queryset = Resource.objects.all().order_by('id')
+    serializer_class = ResourceSerializer
+    permission_classes = [IsCourseTeacherOrOwner]
+
+class AttachmentViewSet(viewsets.ModelViewSet):
+    queryset = Attachment.objects.all().order_by('id')
+    serializer_class = AttachmentSerializer
+    permission_classes = [IsCourseTeacherOrOwner]
 from rest_framework.decorators import action
 from rest_framework.response import Response
 

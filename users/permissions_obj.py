@@ -33,8 +33,6 @@ class IsCourseTeacherOrOwner(BasePermission):
                     course = obj.course
                 elif hasattr(obj, 'section') and hasattr(obj.section, 'course'):
                     course = obj.section.course
-                elif hasattr(obj, 'assignment') and hasattr(obj.assignment, 'course'):
-                    course = obj.assignment.course
                 # Removed Submission references
         except Exception:
             course = None

@@ -1,16 +1,10 @@
 from rest_framework import serializers
-from .models import Course, CourseCategory, CourseSection
-from .models_resource import Assignment, Quiz, Resource
-
-# REMOVED: from assignments.serializers import AttachmentSerializer
-
-# --- Core Serializers ---
+from .models import Course, CourseCategory, CourseSection, Assignment, Quiz, Resource, Attachment
 
 class CourseCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseCategory
         fields = ['id', 'name', 'parent']
-
 
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,80 +12,33 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = ['id', 'shortname', 'fullname', 'summary', 'visible', 'start_date', 'end_date', 'category']
 
 
-# --- Helper Functions for Deferral ---
-
-# Define the deferred serialization logic once to keep the code clean.
-# This avoids repeating the get_attachments method in all three serializers.
-def get_deferred_attachments(serializer_instance, obj):
-    """Handles the deferred import and serialization of attachments."""
-    # Local, deferred import to run at runtime, not startup
-    from assignments.serializers import AttachmentSerializer
-    attachments_qs = getattr(obj, 'attachments', None)
-    if attachments_qs is None:
-        return []
-    try:
-        return AttachmentSerializer(attachments_qs.all(), many=True, context=serializer_instance.context).data
-    except Exception:
-        return []
-
-
-# --- Nested Serializers with Circular Dependency Fix ---
+class AttachmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Attachment
+        fields = ['id', 'type', 'file', 'url', 'text']
 
 class AssignmentSerializer(serializers.ModelSerializer):
-    # FIX: Define SerializerMethodField directly on the class.
-    attachments = serializers.SerializerMethodField()
-
-    def get_attachments(self, obj):
-        # Delegate to the helper function which handles the deferred import
-        return get_deferred_attachments(self, obj)
-
+    attachments = AttachmentSerializer(many=True, read_only=True)
     class Meta:
         model = Assignment
         fields = ['id', 'title', 'description', 'attachments']
 
-
 class QuizSerializer(serializers.ModelSerializer):
-    # FIX: Define SerializerMethodField directly on the class.
-    attachments = serializers.SerializerMethodField()
-
-    def get_attachments(self, obj):
-        return get_deferred_attachments(self, obj)
-
+    attachments = AttachmentSerializer(many=True, read_only=True)
     class Meta:
         model = Quiz
         fields = ['id', 'title', 'description', 'attachments']
 
-
 class ResourceSerializer(serializers.ModelSerializer):
-    # FIX: Define SerializerMethodField directly on the class.
-    attachments = serializers.SerializerMethodField()
-
-    def get_attachments(self, obj):
-        return get_deferred_attachments(self, obj)
-
+    attachments = AttachmentSerializer(many=True, read_only=True)
     class Meta:
         model = Resource
         fields = ['id', 'title', 'description', 'attachments']
 
-# --- Course Section Serializer ---
-
 class CourseSectionSerializer(serializers.ModelSerializer):
-    assignments = serializers.SerializerMethodField()
-    quizzes = serializers.SerializerMethodField()
-    resources = serializers.SerializerMethodField()
-
-
-    def get_assignments(self, obj):
-        return AssignmentSerializer(obj.assignments.all(), many=True, context=self.context).data
-
-
-    def get_quizzes(self, obj):
-        return QuizSerializer(obj.quizzes.all(), many=True, context=self.context).data
-
-
-    def get_resources(self, obj):
-        return ResourceSerializer(obj.resources.all(), many=True, context=self.context).data
-
+    assignments = AssignmentSerializer(many=True, read_only=True)
+    quizzes = QuizSerializer(many=True, read_only=True)
+    resources = ResourceSerializer(many=True, read_only=True)
     class Meta:
         model = CourseSection
-        fields = ['id', 'course', 'title', 'summary', 'position', 'assignments', 'quizzes', 'resources']
+        fields = ['id', 'title', 'summary', 'course', 'position', 'notifications', 'storage', 'assignments', 'quizzes', 'resources']

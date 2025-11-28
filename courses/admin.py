@@ -1,76 +1,6 @@
-from django.contrib import admin
-from .models_resource import Assignment, Quiz, Resource
-from assignments.models import Attachment
-
-class AttachmentInline(admin.TabularInline):
-    model = Attachment
-    extra = 1
-
-class AssignmentAdmin(admin.ModelAdmin):
-    inlines = [AttachmentInline]
-
-class QuizAdmin(admin.ModelAdmin):
-    inlines = [AttachmentInline]
-
-class ResourceAdmin(admin.ModelAdmin):
-    inlines = [AttachmentInline]
-
-
 import nested_admin
 from django.contrib import admin
-from django.http import HttpResponse
-import csv
-
-from .models import CourseCategory, Course, CourseSection
-from assignments.models import Attachment
-from .models_resource import Assignment, Quiz, Resource
-
-
-import nested_admin
-from django.contrib import admin
-from .models import CourseCategory, Course, CourseSection
-from .models_resource import Assignment, Quiz, Resource
-from assignments.models import Attachment
-
-# Nested inlines for attachments
-class AssignmentAttachmentInline(nested_admin.NestedTabularInline):
-    model = Attachment
-    extra = 1
-    fk_name = 'assignment'
-
-class QuizAttachmentInline(nested_admin.NestedTabularInline):
-    model = Attachment
-    extra = 1
-    fk_name = 'quiz'
-
-class ResourceAttachmentInline(nested_admin.NestedTabularInline):
-    model = Attachment
-    extra = 1
-    fk_name = 'resource'
-
-# Nested inlines for assignments, quizzes, resources
-
-class AssignmentInline(nested_admin.NestedTabularInline):
-    model = Assignment
-    extra = 1
-    inlines = [AssignmentAttachmentInline]
-
-class QuizInline(nested_admin.NestedTabularInline):
-    model = Quiz
-    extra = 1
-    inlines = [QuizAttachmentInline]
-
-class ResourceInline(nested_admin.NestedTabularInline):
-    model = Resource
-    extra = 1
-    inlines = [ResourceAttachmentInline]
-
-class CourseSectionAdmin(nested_admin.NestedModelAdmin):
-    inlines = [AssignmentInline, QuizInline, ResourceInline]
-    list_display = ('id', 'title', 'course', 'position')
-    search_fields = ('title', 'course__fullname')
-
-admin.site.register(CourseSection, CourseSectionAdmin)
+from .models import CourseCategory, Course, CourseSection, Assignment, Quiz, Resource, Attachment
 
 def export_as_csv_action(description="Export selected objects as CSV", fields=None):
     def export_as_csv(modeladmin, request, queryset):
@@ -94,21 +24,52 @@ class CourseCategoryAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     actions = [export_as_csv_action(fields=['id', 'name', 'parent_id'])]
 
+@admin.register(Course)
+class CourseAdmin(admin.ModelAdmin):
+    list_display = ('id', 'fullname', 'owner')
+    search_fields = ('fullname', 'owner__username')
 
 
-# --- 4. Standalone Admin Registration (Using fixed Inlines) ---
+class AttachmentInline(nested_admin.NestedStackedInline):
+    model = Attachment
+    extra = 1
+    fields = ('type', 'file', 'url', 'text')
+    verbose_name = 'Attachment'
+    verbose_name_plural = 'Attachments'
 
-@admin.register(Assignment)
-class AssignmentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title')
-    inlines = [AssignmentAttachmentInline]
+class ResourceInline(nested_admin.NestedStackedInline):
+    model = Resource
+    extra = 1
+    inlines = [AttachmentInline]
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'description', 'text'),
+        }),
+    )
 
-@admin.register(Quiz)
-class QuizAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title')
-    inlines = [QuizAttachmentInline]
+class AssignmentInline(nested_admin.NestedStackedInline):
+    model = Assignment
+    extra = 1
+    inlines = [AttachmentInline]
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'description', 'text'),
+        }),
+    )
 
-@admin.register(Resource)
-class ResourceAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title')
-    inlines = [ResourceAttachmentInline]
+class QuizInline(nested_admin.NestedStackedInline):
+    model = Quiz
+    extra = 1
+    inlines = [AttachmentInline]
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'description', 'text'),
+        }),
+    )
+
+@admin.register(CourseSection)
+class CourseSectionAdmin(nested_admin.NestedModelAdmin):
+    list_display = ('id', 'title', 'course', 'position')
+    search_fields = ('title', 'course__fullname')
+    inlines = [AssignmentInline, QuizInline, ResourceInline]
+

@@ -4,10 +4,12 @@ from courses.views import (
     CourseCategoryViewSet,
     CourseSectionViewSet,
     EnrolledCoursesViewSet,
+    AssignmentViewSet,
+    QuizViewSet,
+    ResourceViewSet,
+    AttachmentViewSet,
 )
 from enrollment.views import EnrollmentViewSet, EnrollmentMethodViewSet
-from grades.views import GradeItemViewSet, GradeViewSet
-from messaging.views import MessageViewSet, NotificationViewSet
 from storage.views import FileViewSet
 
 from rest_framework import routers
@@ -26,10 +28,10 @@ router.register(r'courses', CourseViewSet, basename='course')
 router.register(r'categories', CourseCategoryViewSet, basename='category')
 router.register(r'enrollments', EnrollmentViewSet, basename='enrollment')
 router.register(r'enrollment-methods', EnrollmentMethodViewSet, basename='enrollment-method')
-router.register(r'grade-items', GradeItemViewSet, basename='grade-item')
-router.register(r'grades', GradeViewSet, basename='grade')
-router.register(r'messages', MessageViewSet, basename='message')
-router.register(r'notifications', NotificationViewSet, basename='notification')
+router.register(r'assignments', AssignmentViewSet, basename='assignment')
+router.register(r'quizzes', QuizViewSet, basename='quiz')
+router.register(r'resources', ResourceViewSet, basename='resource')
+router.register(r'attachments', AttachmentViewSet, basename='attachment')
 router.register(r'files', FileViewSet, basename='file')
 
 
