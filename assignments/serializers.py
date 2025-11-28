@@ -22,4 +22,4 @@ class AttachmentSerializer(serializers.ModelSerializer):
 class AssignmentGradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssignmentGrade
-        fields = ['id', 'grader', 'score', 'feedback']  # Removed 'submission' from fields
+        fields = ['id', 'grader', 'score', 'feedback']  # Removed 'submission'
