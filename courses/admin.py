@@ -1,3 +1,20 @@
+from django.contrib import admin
+from .models_resource import Assignment, Quiz, Resource
+from assignments.models import Attachment
+
+class AttachmentInline(admin.TabularInline):
+    model = Attachment
+    extra = 1
+
+class AssignmentAdmin(admin.ModelAdmin):
+    inlines = [AttachmentInline]
+
+class QuizAdmin(admin.ModelAdmin):
+    inlines = [AttachmentInline]
+
+class ResourceAdmin(admin.ModelAdmin):
+    inlines = [AttachmentInline]
+
 
 import nested_admin
 from django.contrib import admin
@@ -9,56 +26,57 @@ from assignments.models import Attachment
 from .models_resource import Assignment, Quiz, Resource
 
 
-# --- 1. Attachment Inlines (FIXED) ---
+import nested_admin
+from django.contrib import admin
+from .models import CourseCategory, Course, CourseSection
+from .models_resource import Assignment, Quiz, Resource
+from assignments.models import Attachment
 
-# Nested inline for Assignment attachments (FK-based)
+# Nested inlines for attachments
 class AssignmentAttachmentInline(nested_admin.NestedTabularInline):
     model = Attachment
     extra = 1
-    verbose_name = "Assignment Attachment"
     fk_name = 'assignment'
-    fieldsets = (
-        (None, {
-            'fields': ('type', 'file', 'url', 'text'),
-        }),
-    )
 
-# Nested inline for Quiz attachments (FK-based)
 class QuizAttachmentInline(nested_admin.NestedTabularInline):
     model = Attachment
     extra = 1
-    verbose_name = "Quiz Attachment"
     fk_name = 'quiz'
-    fieldsets = (
-        (None, {
-            'fields': ('type', 'file', 'url', 'text'),
-        }),
-    )
 
-# Nested inline for Resource attachments (FK-based)
 class ResourceAttachmentInline(nested_admin.NestedTabularInline):
     model = Attachment
     extra = 1
-    verbose_name = "Resource Attachment"
     fk_name = 'resource'
-    fieldsets = (
-        (None, {
-            'fields': ('type', 'file', 'url', 'text'),
-        }),
-    )
 
-# --- 2. Course Inlines and Admin (Already safe) ---
+# Nested inlines for assignments, quizzes, resources
 
-class CourseSectionInline(admin.TabularInline):
-    model = CourseSection
-    extra = 0
-    fields = ('title', 'summary', 'position')
-    readonly_fields = ()
+class AssignmentInline(nested_admin.NestedTabularInline):
+    model = Assignment
+    extra = 1
+    inlines = [AssignmentAttachmentInline]
+
+class QuizInline(nested_admin.NestedTabularInline):
+    model = Quiz
+    extra = 1
+    inlines = [QuizAttachmentInline]
+
+class ResourceInline(nested_admin.NestedTabularInline):
+    model = Resource
+    extra = 1
+    inlines = [ResourceAttachmentInline]
+
+class CourseSectionAdmin(nested_admin.NestedModelAdmin):
+    inlines = [AssignmentInline, QuizInline, ResourceInline]
+    list_display = ('id', 'title', 'course', 'position')
+    search_fields = ('title', 'course__fullname')
+
+admin.site.register(CourseSection, CourseSectionAdmin)
 
 def export_as_csv_action(description="Export selected objects as CSV", fields=None):
-    # ... (function body remains the same)
     def export_as_csv(modeladmin, request, queryset):
         field_names = fields or [f.name for f in modeladmin.model._meta.fields]
+        from django.http import HttpResponse
+        import csv
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = f'attachment; filename={modeladmin.model._meta.model_name}.csv'
         writer = csv.writer(response)
@@ -67,7 +85,6 @@ def export_as_csv_action(description="Export selected objects as CSV", fields=No
             row = [getattr(obj, f) for f in field_names]
             writer.writerow(row)
         return response
-
     export_as_csv.short_description = description
     return export_as_csv
 
@@ -78,44 +95,6 @@ class CourseCategoryAdmin(admin.ModelAdmin):
     actions = [export_as_csv_action(fields=['id', 'name', 'parent_id'])]
 
 
-@admin.register(Course)
-class CourseAdmin(admin.ModelAdmin):
-    list_display = ('id', 'shortname', 'fullname', 'visible', 'start_date', 'end_date')
-    list_filter = ('visible', 'category')
-    search_fields = ('shortname', 'fullname')
-    inlines = [CourseSectionInline]
-    actions = [export_as_csv_action(fields=['id', 'shortname', 'fullname', 'visible', 'start_date', 'end_date'])]
-
-# --- 3. Nested Inlines for CourseSection (Already safe) ---
-
-# Nested inline for Assignments in CourseSection (FK-based)
-class AssignmentInline(nested_admin.NestedTabularInline):
-    model = Assignment
-    extra = 1
-    verbose_name = "Assignment"
-    inlines = [AssignmentAttachmentInline] # Uses the fixed AttachmentInline
-
-# Nested inline for Quizzes in CourseSection (FK-based)
-class QuizInline(nested_admin.NestedTabularInline):
-    model = Quiz
-    extra = 1
-    verbose_name = "Quiz"
-    inlines = [QuizAttachmentInline] # Uses the fixed AttachmentInline
-
-# Nested inline for Resources in CourseSection (FK-based)
-class ResourceInline(nested_admin.NestedTabularInline):
-    model = Resource
-    extra = 1
-    verbose_name = "Resource"
-    inlines = [ResourceAttachmentInline] # Uses the fixed AttachmentInline
-
-
-@admin.register(CourseSection)
-class CourseSectionAdmin(nested_admin.NestedModelAdmin):
-    list_display = ('id', 'course', 'title', 'position')
-    list_filter = ('course',)
-    inlines = [AssignmentInline, QuizInline, ResourceInline]
-    actions = [export_as_csv_action(fields=['id', 'course_id', 'title', 'position'])]
 
 # --- 4. Standalone Admin Registration (Using fixed Inlines) ---
 

@@ -76,9 +76,21 @@ class ResourceSerializer(serializers.ModelSerializer):
 # --- Course Section Serializer ---
 
 class CourseSectionSerializer(serializers.ModelSerializer):
-    assignments = AssignmentSerializer(many=True, read_only=True)
-    quizzes = QuizSerializer(many=True, read_only=True)
-    resources = ResourceSerializer(many=True, read_only=True)
+    assignments = serializers.SerializerMethodField()
+    quizzes = serializers.SerializerMethodField()
+    resources = serializers.SerializerMethodField()
+
+
+    def get_assignments(self, obj):
+        return AssignmentSerializer(obj.assignments.all(), many=True, context=self.context).data
+
+
+    def get_quizzes(self, obj):
+        return QuizSerializer(obj.quizzes.all(), many=True, context=self.context).data
+
+
+    def get_resources(self, obj):
+        return ResourceSerializer(obj.resources.all(), many=True, context=self.context).data
 
     class Meta:
         model = CourseSection

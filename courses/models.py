@@ -1,7 +1,5 @@
 from django.db import models
 from django.conf import settings
-# Removed: from assignments.models import Attachment  <-- This was the crash source
-
 
 class CourseCategory(models.Model):
     name = models.CharField(max_length=255)
