@@ -2,6 +2,7 @@ import nested_admin
 from django.contrib import admin
 from .models import CourseCategory, Course, CourseSection, Assignment, Quiz, Resource, Attachment
 
+# --- CSV export action ---
 def export_as_csv_action(description="Export selected objects as CSV", fields=None):
     def export_as_csv(modeladmin, request, queryset):
         field_names = fields or [f.name for f in modeladmin.model._meta.fields]
@@ -18,18 +19,22 @@ def export_as_csv_action(description="Export selected objects as CSV", fields=No
     export_as_csv.short_description = description
     return export_as_csv
 
+# --- CourseCategory Admin ---
 @admin.register(CourseCategory)
 class CourseCategoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'parent')
+    list_display_links = ('name',)  # Make name clickable for edit
     search_fields = ('name',)
     actions = [export_as_csv_action(fields=['id', 'name', 'parent_id'])]
 
+# --- Course Admin ---
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     list_display = ('id', 'fullname', 'owner')
+    list_display_links = ('fullname',)  # Make fullname clickable for edit
     search_fields = ('fullname', 'owner__username')
 
-
+# --- Nested Admin Inlines ---
 class AttachmentInline(nested_admin.NestedStackedInline):
     model = Attachment
     extra = 1
@@ -67,9 +72,10 @@ class QuizInline(nested_admin.NestedStackedInline):
         }),
     )
 
+# --- CourseSection Admin ---
 @admin.register(CourseSection)
 class CourseSectionAdmin(nested_admin.NestedModelAdmin):
     list_display = ('id', 'title', 'course', 'position')
+    list_display_links = ('title',)  # Make title clickable for edit
     search_fields = ('title', 'course__fullname')
     inlines = [AssignmentInline, QuizInline, ResourceInline]
-
