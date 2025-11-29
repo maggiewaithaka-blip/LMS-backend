@@ -14,4 +14,3 @@ celerybeat-schedule
 instance/
 # dotenv
 .env
-eccgd-lms-backend-credentials.json
