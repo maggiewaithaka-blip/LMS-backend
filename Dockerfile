@@ -14,11 +14,10 @@ RUN mkdir -p /app/logs
 COPY . .
 COPY eccgd-lms-backend-credentials.json /app/eccgd-lms-backend-credentials.json
 
+
 # Make the run script executable
 RUN chmod +x /app/run.sh
 
-# Set GCP credentials environment variable
-ENV GOOGLE_APPLICATION_CREDENTIALS=/app/eccgd-lms-backend-credentials.json
 
 EXPOSE 8000
 

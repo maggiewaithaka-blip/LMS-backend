@@ -1,4 +1,4 @@
-from users.views import LoginAPIView, UserViewSet, RoleViewSet
+from users.views import LoginAPIView, UserViewSet, RoleViewSet, ChangePasswordView
 from courses.views import (
     CourseViewSet,
     CourseCategoryViewSet,
@@ -50,6 +50,7 @@ urlpatterns = [
     
     # Custom paths linked to ViewSets
     path('users/me/', UserViewSet.as_view({'get': 'me'}), name='user-me'),
+    path('users/change-password/', ChangePasswordView.as_view(), name='user-change-password'),
     path('courses/enrolled/', EnrolledCoursesViewSet.as_view({'get': 'list'}), name='enrolled-courses'),
     
     # Include main router URLs
