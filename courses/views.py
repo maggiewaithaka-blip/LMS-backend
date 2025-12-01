@@ -36,7 +36,7 @@ from rest_framework.response import Response
 
 
 class CourseViewSet(viewsets.ModelViewSet):
-    queryset = Course.objects.all().order_by('id')
+    queryset = Course.objects.filter(visible=True).order_by('id')
     serializer_class = CourseSerializer
     # Use object-level permission for course edits
     permission_classes = [IsCourseTeacherOrOwner]
@@ -72,7 +72,7 @@ class CourseSectionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         course_id = self.kwargs.get('course_pk') or self.request.query_params.get('course')
-        qs = CourseSection.objects.all().order_by('position')
+        qs = CourseSection.objects.filter(visible=True).order_by('position')
         if course_id:
             qs = qs.filter(course__pk=course_id)
         return qs

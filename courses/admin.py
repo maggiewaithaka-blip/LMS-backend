@@ -33,6 +33,7 @@ class CourseAdmin(admin.ModelAdmin):
     list_display = ('id', 'fullname', 'owner')
     list_display_links = ('fullname',)  # Make fullname clickable for edit
     search_fields = ('fullname', 'owner__username')
+    fields = ('shortname', 'fullname', 'summary', 'visible', 'start_date', 'end_date', 'category', 'owner')
 
 # --- Nested Admin Inlines ---
 class AttachmentInline(nested_admin.NestedStackedInline):
@@ -78,4 +79,4 @@ class CourseSectionAdmin(nested_admin.NestedModelAdmin):
     list_display = ('id', 'title', 'course', 'position')
     list_display_links = ('title',)  # Make title clickable for edit
     search_fields = ('title', 'course__fullname')
-    inlines = [AssignmentInline, QuizInline, ResourceInline]
+    inlines = [ResourceInline, AssignmentInline, QuizInline]

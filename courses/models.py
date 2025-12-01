@@ -13,6 +13,7 @@ class Course(models.Model):
     shortname = models.CharField(max_length=100, unique=True)
     fullname = models.CharField(max_length=255)
     summary = models.TextField(blank=True)
+    thumbnail = models.ImageField(upload_to='course_thumbnails/', null=True, blank=True)
     visible = models.BooleanField(default=True)
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
@@ -32,7 +33,8 @@ class CourseSection(models.Model):
     position = models.PositiveIntegerField(default=0)
     notifications = models.TextField(blank=True, help_text="Messages or notifications for this section")
     storage = models.TextField(blank=True, help_text="Uploaded documents or file references")
-
+    visible = models.BooleanField(default=True)
+    
     def __str__(self):
         return f"{self.title} ({self.course.fullname})"
 

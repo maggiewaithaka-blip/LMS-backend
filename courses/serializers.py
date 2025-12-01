@@ -9,7 +9,7 @@ class CourseCategorySerializer(serializers.ModelSerializer):
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ['id', 'shortname', 'fullname', 'summary', 'visible', 'start_date', 'end_date', 'category']
+        fields = ['id', 'shortname', 'fullname', 'summary', 'thumbnail', 'visible', 'start_date', 'end_date', 'category']
 
 
 class AttachmentSerializer(serializers.ModelSerializer):
@@ -36,9 +36,9 @@ class ResourceSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'attachments']
 
 class CourseSectionSerializer(serializers.ModelSerializer):
+    resources = ResourceSerializer(many=True, read_only=True)
     assignments = AssignmentSerializer(many=True, read_only=True)
     quizzes = QuizSerializer(many=True, read_only=True)
-    resources = ResourceSerializer(many=True, read_only=True)
     class Meta:
         model = CourseSection
-        fields = ['id', 'title', 'summary', 'course', 'position', 'notifications', 'storage', 'assignments', 'quizzes', 'resources']
+        fields = ['id', 'title', 'summary', 'course', 'position', 'notifications', 'storage', 'resources', 'assignments', 'quizzes']
