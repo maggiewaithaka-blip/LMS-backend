@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from ckeditor.fields import RichTextField
 
 class CourseCategory(models.Model):
     name = models.CharField(max_length=255)
@@ -12,8 +13,8 @@ class CourseCategory(models.Model):
 class Course(models.Model):
     shortname = models.CharField(max_length=100, unique=True)
     fullname = models.CharField(max_length=255)
-    summary = models.TextField(blank=True)
-    thumbnail = models.ImageField(upload_to='course_thumbnails/', null=True, blank=True)
+    summary = RichTextField(blank=True)
+    thumbnail = models.ImageField(blank=True, null=True, upload_to='course_thumbnails/')
     visible = models.BooleanField(default=True)
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
@@ -29,10 +30,10 @@ class Course(models.Model):
 class CourseSection(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='sections')
     title = models.CharField(max_length=255, blank=True)
-    summary = models.TextField(blank=True)
+    summary = RichTextField(blank=True)
     position = models.PositiveIntegerField(default=0)
-    notifications = models.TextField(blank=True, help_text="Messages or notifications for this section")
-    storage = models.TextField(blank=True, help_text="Uploaded documents or file references")
+    notifications = RichTextField(blank=True, help_text="Messages or notifications for this section")
+    storage = RichTextField(blank=True, help_text="Uploaded documents or file references")
     visible = models.BooleanField(default=True)
     
     def __str__(self):
@@ -42,8 +43,8 @@ class CourseSection(models.Model):
 class Assignment(models.Model):
     section = models.ForeignKey(CourseSection, on_delete=models.CASCADE, related_name='assignments')
     title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    text = models.TextField(blank=True)
+    description = RichTextField(blank=True)
+    text = RichTextField(blank=True)
 
     def __str__(self):
         return self.title
@@ -52,8 +53,8 @@ class Assignment(models.Model):
 class Quiz(models.Model):
     section = models.ForeignKey(CourseSection, on_delete=models.CASCADE, related_name='quizzes')
     title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    text = models.TextField(blank=True)
+    description = RichTextField(blank=True)
+    text = RichTextField(blank=True)
 
     def __str__(self):
         return self.title
@@ -62,8 +63,8 @@ class Quiz(models.Model):
 class Resource(models.Model):
     section = models.ForeignKey(CourseSection, on_delete=models.CASCADE, related_name='resources')
     title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    text = models.TextField(blank=True)
+    description = RichTextField(blank=True)
+    text = RichTextField(blank=True)
 
     def __str__(self):
         return self.title
@@ -83,7 +84,7 @@ class Attachment(models.Model):
     ], default='file')
     file = models.FileField(upload_to='attachments/', null=True, blank=True)
     url = models.URLField(blank=True)
-    text = models.TextField(blank=True)
+    text = RichTextField(blank=True)
 ##for deployment purpose
     def __str__(self):
         return f"Attachment ({self.type})"
@@ -92,7 +93,7 @@ class Attachment(models.Model):
 class Lesson(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
     title = models.CharField(max_length=255)
-    content = models.TextField(blank=True)
+    content = RichTextField(blank=True)
     position = models.PositiveIntegerField(default=0)
     visible = models.BooleanField(default=True)
 

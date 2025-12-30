@@ -13,5 +13,5 @@ drf-yasg
 drf-nested-routers
 whitenoise
 gunicorn
-
+django-ckeditor
 django-nested-admin>=4.0.2

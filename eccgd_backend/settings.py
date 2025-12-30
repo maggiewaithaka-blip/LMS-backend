@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     "nested_admin",
     "drf_yasg",
     "rest_framework_simplejwt",
-    # "storages", # For Google Cloud Storage (removed for Fly.io)
+    "ckeditor",
 
     # Project apps
     'users',
