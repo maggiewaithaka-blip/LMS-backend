@@ -14,29 +14,18 @@ DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
 
 # Environment-based database and host config
-if os.getenv("RENDER"):
-    # Production on Render: use PostgreSQL
-    ALLOWED_HOSTS = []
-    if RENDER_EXTERNAL_HOSTNAME := os.getenv("RENDER_EXTERNAL_HOSTNAME"):
-        ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-    DATABASES = {
-        "default": dj_database_url.config(
-            default=os.getenv("DATABASE_URL"),
-            conn_max_age=600,
-            ssl_require=True
-        )
-    }
-elif os.getenv('DB_HOST'):
-    # Local development or Fly.io Postgres
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL:
     ALLOWED_HOSTS = ["*"]
     DATABASES = {
-        'default': dj_database_url.config(
-            default=f"postgres://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}",
-            conn_max_age=600
+        "default": dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=False  # Fly.io Postgres does not require ssl by default
         )
     }
 else:
-    # local: fallback to SQLite
+    # fallback to SQLite
     ALLOWED_HOSTS = ["*"]
     DATABASES = {
         "default": {
