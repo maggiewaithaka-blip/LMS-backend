@@ -1,4 +1,3 @@
-
 from dotenv import load_dotenv
 load_dotenv()
 import os
@@ -245,5 +244,10 @@ SWAGGER_SETTINGS = {
 REDOC_SETTINGS = {
     "LAZY_RENDERING": True,
 }
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://lms-backend-qhvvka.fly.dev",
+    # add other trusted origins if needed
+]
 
 
