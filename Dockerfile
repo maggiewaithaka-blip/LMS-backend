@@ -12,15 +12,13 @@ RUN mkdir -p /app/logs
 
 # Copy the rest of the application's code
 COPY . .
-COPY eccgd-lms-backend-credentials.json /app/eccgd-lms-backend-credentials.json
-
 
 # Make the run script executable
 RUN chmod +x /app/run.sh
 
+# Expose the port your app runs on
+ENV PORT=8080
+EXPOSE $PORT
 
-EXPOSE 8000
-
-# The main command to run when the container starts
-# This will run the migrations and then start the Gunicorn server
-CMD ["/app/run.sh"]
+# Define the command to start your application
+CMD ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn eccgd_backend.wsgi:application --bind 0.0.0.0:8080"]

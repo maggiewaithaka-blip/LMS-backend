@@ -13,5 +13,5 @@ drf-yasg
 drf-nested-routers
 whitenoise
 gunicorn
-django-storages[google]
+
 django-nested-admin>=4.0.2

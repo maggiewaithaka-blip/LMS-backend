@@ -13,53 +13,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-later")
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
-# Detect if running on Google Cloud
-# The K_SERVICE environment variable is set automatically by Google Cloud Run.
-if os.getenv("K_SERVICE"):
-    USE_GCP = True
-else:
-    USE_GCP = os.getenv("USE_GCP", "False").lower() == "true"
 
-if USE_GCP:
-    DEBUG = False
-    # This is safe because Cloud Run sets this header and it cannot be spoofed.
-    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-    
-    # ALLOWED_HOSTS for Google Cloud Run
-    # The K_SERVICE environment variable is the name of the Cloud Run service.
-    # The K_REVISION environment variable is the specific version of the service.
-    # We can construct the URL from these.
-    ALLOWED_HOSTS = [
-        "lms-backend-536444006215.africa-south1.run.app",
-    ]
-    
-    # CSRF_TRUSTED_ORIGINS for security
-    CSRF_TRUSTED_ORIGINS = [
-        "https://lms-backend-536444006215.africa-south1.run.app",
-    ]
-    # Add the service URL to CSRF_TRUSTED_ORIGINS
-    if service_url := os.getenv("K_SERVICE"):
-        # The default URL for a Cloud Run service is https://<service-name>-<project-hash>-<region>.a.run.app
-        # We can get the project hash and region from the metadata server, but for simplicity,
-        # we will use the known URL.
-        CSRF_TRUSTED_ORIGINS.append(f"https://{service_url}")
-
-    # Database settings for GCP
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "HOST": f"/cloudsql/{os.getenv('DB_CONNECTION_NAME')}",
-            "USER": os.getenv("DB_USER"),
-            "PASSWORD": os.getenv("DB_PASSWORD"),
-            "NAME": os.getenv("DB_NAME"),
-        }
-    }
-elif os.getenv("RENDER"):
+# Environment-based database and host config
+if os.getenv("RENDER"):
     # Production on Render: use PostgreSQL
     ALLOWED_HOSTS = []
     if RENDER_EXTERNAL_HOSTNAME := os.getenv("RENDER_EXTERNAL_HOSTNAME"):
         ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-        
     DATABASES = {
         "default": dj_database_url.config(
             default=os.getenv("DATABASE_URL"),
@@ -68,7 +28,7 @@ elif os.getenv("RENDER"):
         )
     }
 elif os.getenv('DB_HOST'):
-    # Local development with Cloud SQL Proxy
+    # Local development or Fly.io Postgres
     ALLOWED_HOSTS = ["*"]
     DATABASES = {
         'default': dj_database_url.config(
@@ -104,7 +64,7 @@ INSTALLED_APPS = [
     "nested_admin",
     "drf_yasg",
     "rest_framework_simplejwt",
-    "storages", # For Google Cloud Storage
+    # "storages", # For Google Cloud Storage (removed for Fly.io)
 
     # Project apps
     'users',
@@ -112,7 +72,7 @@ INSTALLED_APPS = [
     'enrollment',
     'storage',
     'reports',
-    'plugins',
+    # "storages", # For Google Cloud Storage (removed for Fly.io)
     ]
 
 # ---------------------------------------
@@ -286,10 +246,4 @@ REDOC_SETTINGS = {
     "LAZY_RENDERING": True,
 }
 
-# ---------------------------------------
-# GOOGLE CLOUD STORAGE
-# ---------------------------------------
-if USE_GCP:
-    DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
-    GS_BUCKET_NAME = os.getenv("GS_BUCKET_NAME")
-    MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/"
+
