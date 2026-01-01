@@ -7,9 +7,10 @@ class CourseCategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'parent']
 
 class CourseSerializer(serializers.ModelSerializer):
+    thumbnail = serializers.ImageField(read_only=True)
     class Meta:
         model = Course
-        fields = ['id', 'shortname', 'fullname', 'summary', 'thumbnail', 'visible', 'start_date', 'end_date', 'category']
+        fields = ['id', 'shortname', 'fullname', 'summary', 'visible', 'start_date', 'end_date', 'category', 'thumbnail']
 
 
 class AttachmentSerializer(serializers.ModelSerializer):
