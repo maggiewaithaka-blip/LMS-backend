@@ -34,7 +34,7 @@ class ResourceSerializer(serializers.ModelSerializer):
     attachments = AttachmentSerializer(many=True, read_only=True)
     class Meta:
         model = Resource
-        fields = ['id', 'title', 'description', 'attachments']
+        fields = ['id', 'title', 'description', 'text', 'attachments']
 
 class CourseSectionSerializer(serializers.ModelSerializer):
     resources = ResourceSerializer(many=True, read_only=True)

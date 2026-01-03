@@ -1,3 +1,13 @@
+# ---------------------------------------
+# CKEDITOR CONFIG
+# ---------------------------------------
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'height': 300,
+        'width': '100%',
+    },
+}
 from dotenv import load_dotenv
 load_dotenv()
 import os
@@ -164,6 +174,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     "https://ccgd-learn-central.vercel.app",
+    "http://localhost:8080",
 ]
 CORS_ALLOW_CREDENTIALS = True
 
