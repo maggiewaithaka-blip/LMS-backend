@@ -19,14 +19,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ---------------------------------------
 # SECRET KEY & DEBUG
 # ---------------------------------------
-SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-later")
-DEBUG = os.getenv("DEBUG", "True").lower() == "true"
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise Exception("SECRET_KEY environment variable must be set in production!")
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 
 # Environment-based database and host config
 DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL:
-    ALLOWED_HOSTS = ["*"]
+    ALLOWED_HOSTS = ["lms.careerguidancecollege.com"]
     DATABASES = {
         "default": dj_database_url.config(
             default=DATABASE_URL,
@@ -36,7 +38,7 @@ if DATABASE_URL:
     }
 else:
     # fallback to SQLite
-    ALLOWED_HOSTS = ["*"]
+    ALLOWED_HOSTS = ["lms.careerguidancecollege.com"]
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -173,8 +175,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ---------------------------------------
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
-    "https://ccgd-learn-central.vercel.app",
-    "http://localhost:8080",
+    "https://lms.careerguidancecollege.com",
 ]
 CORS_ALLOW_CREDENTIALS = True
 

@@ -14,3 +14,4 @@ celerybeat-schedule
 instance/
 # dotenv
 .env
+env.yaml
