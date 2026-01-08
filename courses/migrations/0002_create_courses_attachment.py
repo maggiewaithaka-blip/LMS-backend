@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
         migrations.RunSQL(
             sql="""
             CREATE TABLE IF NOT EXISTS courses_attachment (
-                id BIGSERIAL PRIMARY KEY,
+                id BIGINT AUTO_INCREMENT PRIMARY KEY,
                 assignment_id BIGINT REFERENCES courses_assignment(id) ON DELETE CASCADE,
                 quiz_id BIGINT REFERENCES courses_quiz(id) ON DELETE CASCADE,
                 resource_id BIGINT REFERENCES courses_resource(id) ON DELETE CASCADE,
