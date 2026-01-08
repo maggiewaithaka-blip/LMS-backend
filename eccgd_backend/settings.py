@@ -28,7 +28,7 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 # Environment-based database and host config
 DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL:
-    ALLOWED_HOSTS = ["lms.careerguidancecollege.com"]
+    ALLOWED_HOSTS = ["lms.careerguidancecollege.com", "91.134.166.17", "localhost", "127.0.0.1"]
     DATABASES = {
         "default": dj_database_url.config(
             default=DATABASE_URL,
@@ -38,7 +38,7 @@ if DATABASE_URL:
     }
 else:
     # fallback to SQLite
-    ALLOWED_HOSTS = ["lms.careerguidancecollege.com"]
+    ALLOWED_HOSTS = ["lms.careerguidancecollege.com", "91.134.166.17", "localhost", "127.0.0.1"]
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
