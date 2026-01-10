@@ -247,7 +247,7 @@ REDOC_SETTINGS = {
 }
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://lms-backend-qhvvka.fly.dev",
+    "https://lms.careerguidancecollege.com",
     # add other trusted origins if needed
 ]
 
