@@ -248,6 +248,7 @@ REDOC_SETTINGS = {
 
 CSRF_TRUSTED_ORIGINS = [
     "https://lms.careerguidancecollege.com",
+    "https://lms.careerguidancecollege.com,https://lms.careerguidancecollege.com",
     # add other trusted origins if needed
 ]
 
