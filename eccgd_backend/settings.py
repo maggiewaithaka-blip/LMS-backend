@@ -84,10 +84,10 @@ AUTH_USER_MODEL = "users.User"
 # MIDDLEWARE
 # ---------------------------------------
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",  # <-- move to the very top!
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # required on Render
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",       # only if using CORS
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
