@@ -178,7 +178,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://lms.careerguidancecollege.com",
     "http://localhost:8080",
 ]
-]
+
 CORS_ALLOW_CREDENTIALS = True
 
 # ---------------------------------------
@@ -248,9 +248,10 @@ REDOC_SETTINGS = {
     "LAZY_RENDERING": True,
 }
 
+
 CSRF_TRUSTED_ORIGINS = [
     "https://lms.careerguidancecollege.com",
-    "http://localhost:8080",
+    "http://localhost:8080"
 ]
 
 
