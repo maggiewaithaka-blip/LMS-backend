@@ -176,7 +176,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     "https://lms.careerguidancecollege.com",
-    "http://localhost:8080",
+    
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -249,7 +249,6 @@ REDOC_SETTINGS = {
 
 CSRF_TRUSTED_ORIGINS = [
     "https://lms.careerguidancecollege.com",
-    "http://localhost:8080",
     "https://lms.careerguidancecollege.com,https://lms.careerguidancecollege.com",
     # add other trusted origins if needed
 ]
