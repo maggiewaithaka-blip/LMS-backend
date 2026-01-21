@@ -41,7 +41,11 @@ class CourseSectionSerializer(serializers.ModelSerializer):
     resources = ResourceSerializer(many=True, read_only=True)
     assignments = AssignmentSerializer(many=True, read_only=True)
     quizzes = QuizSerializer(many=True, read_only=True)
-    scorm_packages = ScormPackageSerializer(many=True, read_only=True)
+    scorm_packages = serializers.SerializerMethodField()
+
+    def get_scorm_packages(self, obj):
+        scorms = obj.scorm_packages.all()
+        return ScormPackageSerializer(scorms, many=True).data
     class Meta:
         model = CourseSection
         fields = ['id', 'title', 'summary', 'course', 'position', 'notifications', 'storage', 'resources', 'assignments', 'quizzes', 'scorm_packages']
