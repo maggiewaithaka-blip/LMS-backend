@@ -8,6 +8,8 @@ from courses.views import (
     QuizViewSet,
     ResourceViewSet,
     AttachmentViewSet,
+    ScormPackageUploadView,
+    ScormPackageListView,
 )
 from enrollment.views import EnrollmentViewSet, EnrollmentMethodViewSet
 from storage.views import FileViewSet
@@ -52,6 +54,8 @@ urlpatterns = [
     path('users/me/', UserViewSet.as_view({'get': 'me'}), name='user-me'),
     path('users/change-password/', ChangePasswordView.as_view(), name='user-change-password'),
     path('courses/enrolled/', EnrolledCoursesViewSet.as_view({'get': 'list'}), name='enrolled-courses'),
+    path('scorm/', ScormPackageListView.as_view(), name='scorm-list'),
+    path('scorm/upload/', ScormPackageUploadView.as_view(), name='scorm-upload'),
     
     # Include main router URLs
     path('', include(router.urls)),

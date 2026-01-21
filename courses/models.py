@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from ckeditor.fields import RichTextField
-
+from .models_scorm import *
 class CourseCategory(models.Model):
     name = models.CharField(max_length=255)
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='children')

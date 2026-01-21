@@ -1,6 +1,26 @@
+from django.contrib.admin import SimpleListFilter
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import User, Role, UserRole, Profile
+
+# Custom filter for user type
+class UserTypeFilter(SimpleListFilter):
+    title = 'User Type'
+    parameter_name = 'user_type'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('learners', 'Learners'),
+            ('instructors', 'Instructors'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'learners':
+            return queryset.filter(is_active=True, is_staff=False)
+        if self.value() == 'instructors':
+            return queryset.filter(is_active=True, is_staff=True)
+        return queryset
+
 # StudentApplication admin removed (student applications handled outside public API)
 # from .models_application import StudentApplication
 #@admin.register(StudentApplication)
@@ -12,7 +32,7 @@ from .models import User, Role, UserRole, Profile
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    pass
+    list_filter = (UserTypeFilter,)
 
 
 @admin.register(Role)

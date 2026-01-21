@@ -1,13 +1,28 @@
 import nested_admin
 from django.contrib import admin
 from .models import CourseCategory, Course, CourseSection, Assignment, Quiz, Resource, Attachment
+from .models_scorm import ScormPackage
+import zipfile
+from django.conf import settings
+import os
+from django.http import HttpResponse
+import csv
+
+
+class ScormPackageInline(nested_admin.NestedStackedInline):
+    model = ScormPackage
+    extra = 1
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'zip_file'),
+        }),
+    )
+
 
 # --- CSV export action ---
 def export_as_csv_action(description="Export selected objects as CSV", fields=None):
     def export_as_csv(modeladmin, request, queryset):
         field_names = fields or [f.name for f in modeladmin.model._meta.fields]
-        from django.http import HttpResponse
-        import csv
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = f'attachment; filename={modeladmin.model._meta.model_name}.csv'
         writer = csv.writer(response)
@@ -79,4 +94,22 @@ class CourseSectionAdmin(nested_admin.NestedModelAdmin):
     list_display = ('id', 'title', 'course', 'position')
     list_display_links = ('title',)  # Make title clickable for edit
     search_fields = ('title', 'course__fullname')
-    inlines = [ResourceInline, AssignmentInline, QuizInline]
+    list_filter = ('course',)
+    inlines = [ResourceInline, AssignmentInline, QuizInline, ScormPackageInline]
+
+
+
+@admin.register(ScormPackage)
+class ScormPackageAdmin(admin.ModelAdmin):
+    list_display = ("id", "name", "section", "uploaded_at")
+    search_fields = ("name",)
+    fields = ("section", "name", "zip_file", "uploaded_at")
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        # Only extract if zip_file is present and extraction dir does not exist
+        extract_dir = os.path.join(settings.MEDIA_ROOT, 'scorm', f'scorm_{obj.pk}')
+        if obj.zip_file and not os.path.exists(extract_dir):
+            os.makedirs(extract_dir, exist_ok=True)
+            with zipfile.ZipFile(obj.zip_file.path, 'r') as zip_ref:
+                zip_ref.extractall(extract_dir)

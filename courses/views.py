@@ -12,6 +12,20 @@ from .serializers import (
     ResourceSerializer,
     AttachmentSerializer,
 )
+from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework import status
+from .models_scorm import ScormPackage
+from .serializers_scorm import ScormPackageSerializer
+import zipfile
+import os
+from django.conf import settings
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
+
 class AssignmentViewSet(viewsets.ModelViewSet):
     queryset = Assignment.objects.all().order_by('id')
     serializer_class = AssignmentSerializer
@@ -31,8 +45,6 @@ class AttachmentViewSet(viewsets.ModelViewSet):
     queryset = Attachment.objects.all().order_by('id')
     serializer_class = AttachmentSerializer
     permission_classes = [IsCourseTeacherOrOwner]
-from rest_framework.decorators import action
-from rest_framework.response import Response
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -91,3 +103,38 @@ class EnrolledCoursesViewSet(viewsets.ReadOnlyModelViewSet):
         if user.is_authenticated:
             return Course.objects.filter(enrollment__user=user).distinct()
         return Course.objects.none()
+
+
+class ScormPackageListView(generics.ListAPIView):
+    queryset = ScormPackage.objects.all().order_by('-uploaded_at')
+    serializer_class = ScormPackageSerializer
+
+class ScormPackageUploadView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    def post(self, request, format=None):
+        serializer = ScormPackageSerializer(data=request.data)
+        if serializer.is_valid():
+            scorm = serializer.save()
+            # Extract the zip file
+            extract_dir = os.path.join(settings.MEDIA_ROOT, 'scorm', f'scorm_{scorm.pk}')
+            os.makedirs(extract_dir, exist_ok=True)
+            with zipfile.ZipFile(scorm.zip_file.path, 'r') as zip_ref:
+                zip_ref.extractall(extract_dir)
+
+            # Find index.html in any subdirectory
+            index_path = None
+            for root, dirs, files in os.walk(extract_dir):
+                if 'index.html' in files:
+                    index_path = os.path.join(root, 'index.html')
+                    break
+            if index_path:
+                index_dir = os.path.dirname(index_path)
+                    # ...removed debug print...
+                scorm.extracted_path = index_dir
+            else:
+                    # ...removed debug print...
+                scorm.extracted_path = extract_dir
+            scorm.save()
+            return Response(ScormPackageSerializer(scorm).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
     raise Exception("SECRET_KEY environment variable must be set in production!")
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+DEBUG = True  # Set to True for testing purposes only
 
 
 # Environment-based database and host config
@@ -253,5 +253,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://lms.careerguidancecollege.com",
     "http://localhost:8080"
 ]
+
+X_FRAME_OPTIONS = 'ALLOWALL'
 
 

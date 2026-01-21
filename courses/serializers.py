@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Course, CourseCategory, CourseSection, Assignment, Quiz, Resource, Attachment
+from .serializers_scorm import ScormPackageSerializer
 
 class CourseCategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -40,6 +41,7 @@ class CourseSectionSerializer(serializers.ModelSerializer):
     resources = ResourceSerializer(many=True, read_only=True)
     assignments = AssignmentSerializer(many=True, read_only=True)
     quizzes = QuizSerializer(many=True, read_only=True)
+    scorm_packages = ScormPackageSerializer(many=True, read_only=True)
     class Meta:
         model = CourseSection
-        fields = ['id', 'title', 'summary', 'course', 'position', 'notifications', 'storage', 'resources', 'assignments', 'quizzes']
+        fields = ['id', 'title', 'summary', 'course', 'position', 'notifications', 'storage', 'resources', 'assignments', 'quizzes', 'scorm_packages']
