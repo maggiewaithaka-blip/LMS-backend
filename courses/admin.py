@@ -7,7 +7,7 @@ from django.conf import settings
 import os
 from django.http import HttpResponse
 import csv
-
+from django.contrib import admin
 
 class ScormPackageInline(nested_admin.NestedStackedInline):
     model = ScormPackage
@@ -99,17 +99,10 @@ class CourseSectionAdmin(nested_admin.NestedModelAdmin):
 
 
 
-@admin.register(ScormPackage)
-class ScormPackageAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "section", "uploaded_at")
-    search_fields = ("name",)
-    fields = ("section", "name", "zip_file", "uploaded_at")
 
-    def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change)
-        # Only extract if zip_file is present and extraction dir does not exist
-        extract_dir = os.path.join(settings.MEDIA_ROOT, 'scorm', f'scorm_{obj.pk}')
-        if obj.zip_file and not os.path.exists(extract_dir):
-            os.makedirs(extract_dir, exist_ok=True)
-            with zipfile.ZipFile(obj.zip_file.path, 'r') as zip_ref:
-                zip_ref.extractall(extract_dir)
+# Unregister ScormPackage from the admin site so it does not appear in the sidebar
+
+try:
+    admin.site.unregister(ScormPackage)
+except admin.sites.NotRegistered:
+    pass
