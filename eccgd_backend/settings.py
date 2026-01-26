@@ -1,3 +1,11 @@
+from dotenv import load_dotenv
+load_dotenv()
+import os
+from pathlib import Path
+import dj_database_url
+
+
+
 # ---------------------------------------
 # CKEDITOR CONFIG
 # ---------------------------------------
@@ -8,11 +16,7 @@ CKEDITOR_CONFIGS = {
         'width': '100%',
     },
 }
-from dotenv import load_dotenv
-load_dotenv()
-import os
-from pathlib import Path
-import dj_database_url
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
     raise Exception("SECRET_KEY environment variable must be set in production!")
-DEBUG = True  # Set to True for testing purposes only
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 
 # Environment-based database and host config
@@ -33,9 +37,13 @@ if DATABASE_URL:
         "default": dj_database_url.config(
             default=DATABASE_URL,
             conn_max_age=600,
-            ssl_require=False  # Fly.io Postgres does not require ssl by default
+            ssl_require=False
         )
     }
+    # Ensure utf8mb4 charset for MySQL
+    if DATABASES["default"]["ENGINE"].endswith("mysql"):
+        DATABASES["default"].setdefault("OPTIONS", {})
+        DATABASES["default"]["OPTIONS"]["charset"] = "utf8mb4"
 else:
     # fallback to SQLite
     ALLOWED_HOSTS = ["lms.careerguidancecollege.com", "91.134.166.17", "localhost", "127.0.0.1"]
@@ -254,6 +262,6 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8080"
 ]
 
-X_FRAME_OPTIONS = 'ALLOWALL'
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 
